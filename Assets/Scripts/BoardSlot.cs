@@ -56,21 +56,11 @@ public class BoardSlot : MonoBehaviour, IDropHandler
 
     private void Start()
     {
-        UpdateMoveListP2();
+     //   UpdateMoveListP2();
         AdjacentBslotListP1();
-        int rowIndex = transform.GetSiblingIndex();
+        cardsPlacedInPreviousTurn.Clear();
 
-        if ((transform.parent.GetChild(rowIndex - 1).childCount > 0 && transform.parent.GetChild(rowIndex - 1).GetChild(0).name == "SHCardP2") ||
-                            (transform.parent.GetChild(rowIndex - 13).childCount > 0 && transform.parent.GetChild(rowIndex - 13).GetChild(0).name == "SHCardP2") ||
-                            (transform.parent.GetChild(rowIndex - 14).childCount > 0 && transform.parent.GetChild(rowIndex - 14).GetChild(0).name == "SHCardP2") ||
-                            (transform.parent.GetChild(rowIndex - 15).childCount > 0 && transform.parent.GetChild(rowIndex - 15).GetChild(0).name == "SHCardP2") ||
-                            (transform.parent.GetChild(rowIndex +  1).childCount > 0 && transform.parent.GetChild(rowIndex +  1).GetChild(0).name == "SHCardP2") ||
-                            (transform.parent.GetChild(rowIndex + 13).childCount > 0 && transform.parent.GetChild(rowIndex + 13).GetChild(0).name == "SHCardP2") ||
-                            (transform.parent.GetChild(rowIndex + 14).childCount > 0 && transform.parent.GetChild(rowIndex + 14).GetChild(0).name == "SHCardP2") ||
-                            (transform.parent.GetChild(rowIndex + 15).childCount > 0 && transform.parent.GetChild(rowIndex + 15).GetChild(0).name == "SHCardP2"))
-        {
-            availableBSlotsAI.Add(transform.parent.GetChild(rowIndex));
-        }
+        AiPlay();
 
         UpdatePreviousCardsList();
         Debug.Log("Previously Placed Cards P1:"+PreviouslyPlacedAvailable().Count);
@@ -81,12 +71,36 @@ public class BoardSlot : MonoBehaviour, IDropHandler
        // Debug.Log("Available Slots:"+availableBSlotsAI.Count);
     }
     #region Ai Logics
+    public void AiPlay() 
+    {
+        availableBSlotsAI.Clear();
+
+        foreach (Transform slot in transform.parent)
+        {
+            int rwindex = slot.GetSiblingIndex();
+
+            // Check if any adjacent slot has a card tagged as "Player2"
+            if ((rwindex > 0 && transform.parent.GetChild(rwindex - 1).childCount > 0 && transform.parent.GetChild(rwindex - 1).GetChild(0).CompareTag("Player2")) ||
+                (rwindex > 12 && transform.parent.GetChild(rwindex - 13).childCount > 0 && transform.parent.GetChild(rwindex - 13).GetChild(0).CompareTag("Player2")) ||
+                (rwindex > 13 && transform.parent.GetChild(rwindex - 14).childCount > 0 && transform.parent.GetChild(rwindex - 14).GetChild(0).CompareTag("Player2")) ||
+                (rwindex > 14 && transform.parent.GetChild(rwindex - 15).childCount > 0 && transform.parent.GetChild(rwindex - 15).GetChild(0).CompareTag("Player2")) ||
+                (rwindex < transform.parent.childCount - 1 && transform.parent.GetChild(rwindex + 1).childCount > 0 && transform.parent.GetChild(rwindex + 1).GetChild(0).CompareTag("Player2")) ||
+                (rwindex < transform.parent.childCount - 13 && transform.parent.GetChild(rwindex + 13).childCount > 0 && transform.parent.GetChild(rwindex + 13).GetChild(0).CompareTag("Player2")) ||
+                (rwindex < transform.parent.childCount - 14 && transform.parent.GetChild(rwindex + 14).childCount > 0 && transform.parent.GetChild(rwindex + 14).GetChild(0).CompareTag("Player2")) ||
+                (rwindex < transform.parent.childCount - 15 && transform.parent.GetChild(rwindex + 15).childCount > 0 && transform.parent.GetChild(rwindex + 15).GetChild(0).CompareTag("Player2")))
+            {
+                // cardsPlacedInPreviousTurn.Add(slot);
+                availableBSlotsAI.Add(transform.parent.GetChild(rwindex));
+            }
+        }
+    }
+
     public List<Transform> Available()
     {
         return availableBSlotsAI;
     }
 
-    public void UpdateMoveListP2() 
+  /*  public void UpdateMoveListP2() 
     {
         availableBSlotsAIMove.Clear(); // Clear the list before updating it for the new turn
 
@@ -105,16 +119,16 @@ public class BoardSlot : MonoBehaviour, IDropHandler
                 (rwindex < transform.parent.childCount - 14 && transform.parent.GetChild(rwindex + 14).childCount > 0 && transform.parent.GetChild(rwindex + 14).GetChild(0).CompareTag("Player2")) ||
                 (rwindex < transform.parent.childCount - 15 && transform.parent.GetChild(rwindex + 15).childCount > 0 && transform.parent.GetChild(rwindex + 15).GetChild(0).CompareTag("Player2")))
             {
-                availableBSlotsAIMove.Add(slot);
+               // availableBSlotsAIMove.Add(slot);
             }
         }
         //  else { if (availableBSlotsAIMove.Contains(gameObject.transform)) { availableBSlotsAIMove.Remove(transform.parent.GetChild(rwindex)); }}
-    }
+    }*/
 
-    public List<Transform> MoveAvailable() 
+  /*  public List<Transform> MoveAvailable() 
     {
         return availableBSlotsAIMove;
-    }
+    }*/
 
     public void AdjacentBslotListP1()  //Adjacent P1 BSlot List
     {
@@ -840,7 +854,7 @@ public class BoardSlot : MonoBehaviour, IDropHandler
 
     public void AnotherMethod()  // (1):CARD DRAW PHASE
     {
-        UpdateMoveListP2();
+      //  UpdateMoveListP2();
 
         UpdatePreviousCardsList();
         Debug.Log("Previously Placed Cards P1:" + PreviouslyPlacedAvailable().Count);
@@ -889,6 +903,7 @@ public class BoardSlot : MonoBehaviour, IDropHandler
         AdjacentBslotListP1();
 
         UpdatePreviousCardsListP2();
+        AiPlay();
        // UpdateMoveListP2();
         int value = currentEnergyP2;
         // Debug.Log("CE: " + value);

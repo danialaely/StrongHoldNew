@@ -39,7 +39,7 @@ public class ButtonTurn : MonoBehaviour
     GameObject selectedCARD;
 
     List<Transform> availableSlotsMove;
-    Transform randomSlotMove;
+  //  Transform randomSlotMove;
 
     public List<GameObject> CardPlacedToBoard = new List<GameObject>();
 
@@ -65,7 +65,7 @@ public class ButtonTurn : MonoBehaviour
     {
         boardSlot = FindAnyObjectByType<BoardSlot>();
         availableSlots = boardSlot.Available();
-        availableSlotsMove = boardSlot.MoveAvailable();
+        //availableSlotsMove = boardSlot.MoveAvailable();
         adjacentSlotsP1 = boardSlot.AdjacentP1Available();
         boardSlot.AnotherMethod();
         allDisplayCards = new List<DisplayCard>(FindObjectsOfType<DisplayCard>());
@@ -96,7 +96,7 @@ public class ButtonTurn : MonoBehaviour
         {
             CardPlacedToBoard.Remove(selectedCard);
         }
-        Debug.Log("Adjacent cards P2:"+boardSlot.MoveAvailable().Count);
+     //   Debug.Log("Adjacent cards P2:"+boardSlot.MoveAvailable().Count);
         Debug.Log("Adjacent cards P1:"+boardSlot.AdjacentP1Available().Count);
     }
 
@@ -113,7 +113,7 @@ public class ButtonTurn : MonoBehaviour
         boardSlot.GetPlacementSound();
 
        // boardSlot.UpdateMoveListP2();
-        CardPlacedToBoard.Add(selectedCard);
+        CardPlacedToBoard.Add(selectedCard); // FINE TILL HERE   "CARD PLACED FROM HAND TO BOARD HAVE BEEN ADDED TO LIST"
         Debug.Log("Card in new list:"+CardPlacedToBoard.Count);
         int cardE = selectedCard.GetComponent<DisplayCard2>().GetCardEnergy();
         int CoinE =  BoardSlot.GetCurrentEnergyP2();
@@ -201,12 +201,12 @@ public class ButtonTurn : MonoBehaviour
     public IEnumerator MoveInBoard(float del) 
     {
         yield return new WaitForSeconds(del);
-        SelectRandomMoveSlot();
-        SelectCardToMove();
        // SelectRandomMoveSlot();
-        selectedCARD.transform.SetParent(randomSlotMove);
-        selectedCARD.transform.localPosition = Vector3.zero;
-        boardSlot.GetPlacementSound();
+        SelectCardToMove();
+       // SelectRandomMoveSlot();                            // MOVE IN BOARD
+       // selectedCARD.transform.SetParent(randomSlotMove);  // MOVE IN BOARD
+      //  selectedCARD.transform.localPosition = Vector3.zero;
+      //  boardSlot.GetPlacementSound();
        // selectedCARD.GetComponent<DisplayCard2>().outerBorder.color = Color.white;
         int coinEnergy = BoardSlot.GetCurrentEnergyP2();
         int newCE = coinEnergy - 1;
@@ -326,12 +326,12 @@ public class ButtonTurn : MonoBehaviour
 
     public void SelectRandomMoveSlot() //Movement of card on board MovePhase
     {
-        do 
+     /*   do 
         {
             randomSlotMove = availableSlotsMove[Random.Range(0, availableSlotsMove.Count)];    //APPLY SAME LOGIC FOR CARD SELECTION
         } while (randomSlotMove.childCount > 0);
         Debug.Log("Move Phase BoardSlot:"+randomSlotMove);
-
+     */
     }
 
     public void SelectRandomCard()
@@ -355,9 +355,13 @@ public class ButtonTurn : MonoBehaviour
         }
     }
 
-    public void SelectCardToMove()  // SELECTED CARD(P2 CARD) TO MOVE 
+    public void SelectCardToMove()  // SELECTED CARD(P2 CARD) FROM BOARD TO MOVE 
     {
-      selectedCARD = CardPlacedToBoard[Random.Range(0, CardPlacedToBoard.Count)];   
+      selectedCARD = CardPlacedToBoard[Random.Range(0, CardPlacedToBoard.Count)];   //WORKING HERE
+    }
+
+    public void GetAdjacentP2Cards()  //Adjacent cards of selected p2 Card. 
+    {
     }
 
     public void Attack() 
@@ -450,8 +454,8 @@ public class ButtonTurn : MonoBehaviour
         //  SelectRandomCard();
         StartCoroutine(PlaceToBoard(2.0f));
         StartCoroutine(ChangeAIPhaseToMove(3.0f));
-        StartCoroutine(MoveInBoard(4.0f));
-        StartCoroutine(ChangeAIPhaseToAttack(5.0f));
+      //  StartCoroutine(MoveInBoard(4.0f));
+      //  StartCoroutine(ChangeAIPhaseToAttack(5.0f));
     }
 
     public void OnTurnButtonClick()
