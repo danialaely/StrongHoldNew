@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using Unity.VisualScripting;
+using System.Linq;
 
 public class ButtonTurn : MonoBehaviour
 {
@@ -61,6 +62,15 @@ public class ButtonTurn : MonoBehaviour
     
     public GameToggleManager gameToggleManager;
 
+    public string Movtag = "Player2";
+    GameObject[] player2;
+
+    public List<GameObject> adjacentp2List;
+    Transform[] BSlots;
+
+    public List<Transform> adjacentBSlots;
+    Transform BoardSlt;
+
     private void Start()
     {
         boardSlot = FindAnyObjectByType<BoardSlot>();
@@ -73,7 +83,15 @@ public class ButtonTurn : MonoBehaviour
 
         turnCoroutine = StartCoroutine(ChangeTurn(60.0f));
         TurnStarter(isPlayer1Turn);
-       // currentScene = SceneManager.GetActiveScene();
+        // currentScene = SceneManager.GetActiveScene();
+        player2 = GameObject.FindGameObjectsWithTag(Movtag);
+        GameObject[] gameObjectsWithTag = GameObject.FindGameObjectsWithTag("BSlot");
+        BSlots = new Transform[gameObjectsWithTag.Length];
+        for (int i = 0; i < gameObjectsWithTag.Length; i++)
+        {
+            BSlots[i] = gameObjectsWithTag[i].transform;
+        }
+        //BSlots =;
 
         if (mainCamera == null)
         {
@@ -202,12 +220,19 @@ public class ButtonTurn : MonoBehaviour
     {
         yield return new WaitForSeconds(del);
        // SelectRandomMoveSlot();
-        SelectCardToMove();
-       // SelectRandomMoveSlot();                            // MOVE IN BOARD
-       // selectedCARD.transform.SetParent(randomSlotMove);  // MOVE IN BOARD
-      //  selectedCARD.transform.localPosition = Vector3.zero;
-      //  boardSlot.GetPlacementSound();
-       // selectedCARD.GetComponent<DisplayCard2>().outerBorder.color = Color.white;
+        //SelectCardToMove();
+        GetAdjacentBslotCards();
+        GetRandomMoveBSlot();
+        Debug.Log("This is th card been selected to Move:"+selectedCARD.name);
+        Debug.Log("This is th Board SLot the card will move to:" + BoardSlt.name);
+        selectedCARD.transform.SetParent(BoardSlt);
+        selectedCARD.transform.localPosition = Vector3.zero;
+        selectedCARD.GetComponent<DisplayCard2>().canMove = false;
+        // SelectRandomMoveSlot();                            // MOVE IN BOARD
+        // selectedCARD.transform.SetParent(randomSlotMove);  // MOVE IN BOARD
+        //  selectedCARD.transform.localPosition = Vector3.zero;
+        //  boardSlot.GetPlacementSound();
+        // selectedCARD.GetComponent<DisplayCard2>().outerBorder.color = Color.white;
         int coinEnergy = BoardSlot.GetCurrentEnergyP2();
         int newCE = coinEnergy - 1;
         BoardSlot.SetCurrentEnergyP2(newCE);
@@ -357,11 +382,69 @@ public class ButtonTurn : MonoBehaviour
 
     public void SelectCardToMove()  // SELECTED CARD(P2 CARD) FROM BOARD TO MOVE 
     {
-      selectedCARD = CardPlacedToBoard[Random.Range(0, CardPlacedToBoard.Count)];   //WORKING HERE
+        var movableCards = CardPlacedToBoard.Where(card => card.GetComponent<DisplayCard2>().canMove).ToList();
+        if (movableCards.Count > 0)
+        {
+            selectedCARD = movableCards[Random.Range(0, movableCards.Count)];
+        }
+        else 
+        {
+            Debug.Log("CanMove is False");
+        }
+       /* do 
+        {
+            selectedCARD = CardPlacedToBoard[Random.Range(0, CardPlacedToBoard.Count)];   //WORKING HERE
+        } while (selectedCARD.GetComponent<DisplayCard2>().canMove); */
     }
 
     public void GetAdjacentP2Cards()  //Adjacent cards of selected p2 Card. 
     {
+        SelectCardToMove();
+        adjacentp2List.Clear();
+
+        foreach (GameObject p2 in player2) 
+        {
+            float distance = Vector3.Distance(p2.transform.position, selectedCARD.transform.position);
+            if (p2.gameObject.name == "SHCardP2")
+            {
+                if (distance < 210f && p2 != selectedCARD.gameObject)
+                {
+                    adjacentp2List.Add(p2);
+                }
+            }
+            else 
+            {
+                DisplayCard2 displayCard2 = p2.GetComponent<DisplayCard2>();
+                if (distance < 210f && p2 != selectedCARD.gameObject && displayCard2.canMove)
+                {
+                    adjacentp2List.Add(p2);
+                }
+            }
+        }
+    }
+
+    public void GetAdjacentBslotCards() 
+    {
+        GetAdjacentP2Cards();
+        adjacentBSlots.Clear();
+
+        foreach (Transform bslot in BSlots) 
+        {
+            foreach (GameObject p2 in adjacentp2List)
+            {
+                float dist = Vector3.Distance(p2.transform.position, bslot.transform.position);
+                if (dist < 210f && bslot.childCount == 0) 
+                {
+                    adjacentBSlots.Add(bslot);
+                }
+            }
+        }
+    }
+
+    public void GetRandomMoveBSlot() 
+    {
+        //selectedCARD = CardPlacedToBoard[Random.Range(0, CardPlacedToBoard.Count)];
+        BoardSlt = adjacentBSlots[Random.Range(0, adjacentBSlots.Count)];
     }
 
     public void Attack() 
@@ -454,7 +537,8 @@ public class ButtonTurn : MonoBehaviour
         //  SelectRandomCard();
         StartCoroutine(PlaceToBoard(2.0f));
         StartCoroutine(ChangeAIPhaseToMove(3.0f));
-      //  StartCoroutine(MoveInBoard(4.0f));
+        StartCoroutine(MoveInBoard(4.0f));
+        StartCoroutine(MoveInBoard(7.0f));
       //  StartCoroutine(ChangeAIPhaseToAttack(5.0f));
     }
 
