@@ -209,11 +209,14 @@ public class CardShuffler : MonoBehaviour
             if (handchildCount == 7 && gm.currentPhase == GamePhase.Draw) 
             {
                 lastCard.SetParent(hand.transform);
+                //handlist.add(lastcard);
             }
             if(handchildCount == 6 && gm.currentPhase == GamePhase.Draw) 
             {
                 lastCard.SetParent(hand.transform);
                 secondLastCard.SetParent(hand.transform);
+                //handlist.add(lastcard);
+                //handlist.add(secondLastCard);
             }
             if (handchildCount == 5 && gm.currentPhase == GamePhase.Draw)
             {

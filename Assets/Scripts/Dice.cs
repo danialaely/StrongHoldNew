@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using static UnityEngine.GraphicsBuffer;
 
@@ -42,6 +43,8 @@ public class Dice : MonoBehaviour
 
     public ShP1Card StrongHoldCardP1;
     public ShP2Card StrongHoldCardP2;
+
+    public ButtonTurn btnTurn;
 
   //  public TMP_Text SHoldHealthP1;
   //  float healthValStP1;
@@ -192,9 +195,9 @@ public class Dice : MonoBehaviour
     public void Discarded() 
     {
         //if (GetDice() > GetDice2()) {Debug.Log(" Dice Attack True");}
-       
+        Scene currentScene = SceneManager.GetActiveScene();
 
-                bool isP1Turn = ButtonTurn.GetPlayerTurn();
+        bool isP1Turn = ButtonTurn.GetPlayerTurn();
             if (isP1Turn && !CounterAttackinP1)
             {//DisplayCard2
              //  bslot.SpendOnAttack();
@@ -282,6 +285,7 @@ public class Dice : MonoBehaviour
                             discaranimator.SetBool("isDiscard", true);
                             Transform discarcard = defenderCard.transform;
                             discarcard.SetParent(discardpile.transform);
+                            btnTurn.CardPlacedToBoard.Remove(defenderCard.gameObject);
                             defenderCard.OnPtClc(); //MADE CHANGES HERE
                             DiscardSound();
 
@@ -297,6 +301,10 @@ public class Dice : MonoBehaviour
                             discaranimator.SetBool("isDiscard", true);
                             Transform discarcard = defenderCard.transform;
                             discarcard.SetParent(discardpile.transform);
+                            if (currentScene.name == "AI")
+                            {
+                                btnTurn.CardPlacedToBoard.Remove(defenderCard.gameObject);
+                            }
                             defenderCard.OnPtClc(); //MADE CHANGES HERE
                             DiscardSound();
 
@@ -534,7 +542,11 @@ public class Dice : MonoBehaviour
                             animator2.SetBool("isDiscarded", true);
                             Transform discardCard = defcard.transform;
                             discardCard.SetParent(discardpile2.transform);
-                            defcard.OnPtcClk(); //MADE CHANGES HERE
+                            if (currentScene.name == "SampleScene") 
+                            {
+                                defcard.OnPtcClk(); //MADE CHANGES HERE
+                            }
+                            // discardCard.GetComponent<DisplayCard>().SetSelected(false);
                             DiscardSound();
 
                         //    healthValStP1 -= 2.5f;
@@ -549,7 +561,11 @@ public class Dice : MonoBehaviour
                             animator2.SetBool("isDiscarded", true);
                             Transform discardCard = defcard.transform;
                             discardCard.SetParent(discardpile2.transform);
-                            defcard.OnPtcClk(); //MADE CHANGES HERE
+                            if (currentScene.name == "SampleScene")
+                            { 
+                                defcard.OnPtcClk(); //MADE CHANGES HERE
+                            }
+                            //discardCard.GetComponent<DisplayCard>().SetSelected(false);
                             DiscardSound();
 
                         //    healthValStP1 -= 2.5f;
@@ -645,7 +661,10 @@ public class Dice : MonoBehaviour
                                         discaranimator.SetBool("isDiscard", true);
                                         Transform discards = atcCard.transform;
                                         discards.SetParent(discardpile.transform);
-                                        atcCard.OnPtClc();
+                                        if (currentScene.name == "SampleScene")
+                                        { 
+                                            atcCard.OnPtClc();
+                                        }
                                         Debug.Log("Discard Pile Name:"+discardpile.name);
                                         DiscardSound();
 

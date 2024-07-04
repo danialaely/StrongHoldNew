@@ -306,6 +306,16 @@ public class DisplayCard2 : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
         return 0; // Return 0 if the card is not found.
     }
 
+    public int GetCardDefense() 
+    {
+        Card cardd = display.Find(c => c.cardId == displayId);
+        if (cardd != null)
+        {
+            return cardd.cardDefence;
+        }
+        return 0;
+    }
+
     public void OnPtClc() 
     {
         // isSelected = !isSelected;
@@ -383,7 +393,7 @@ public class DisplayCard2 : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
                         DisplayCard displayCard = p1.GetComponent<DisplayCard>();
                         if (displayCard != null)
                         {
-                            bool selected = displayCard.isSelected;
+                            bool selected = displayCard.GetSelected();
                             if (selected)
                             {
                                 Debug.Log("IT WAS SELECTED BEFORE: " + p1.name);
@@ -532,7 +542,7 @@ public class DisplayCard2 : MonoBehaviour, IBeginDragHandler, IDragHandler, IEnd
     IEnumerator PopUpActiveFalse(float delay) 
     {
         yield return new WaitForSeconds(delay);
-        PopUpCardP2.SetActive(false);
+       // PopUpCardP2.SetActive(false);
     }
 
 }

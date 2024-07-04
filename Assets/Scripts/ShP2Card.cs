@@ -80,12 +80,12 @@ public class ShP2Card : MonoBehaviour , IPointerClickHandler
             {
                 if (gm.currentPhase == GamePhase.Attack) 
                 {
-                    PopUpCardP2.SetActive(true);
+                    //PopUpCardP2.SetActive(true);
                     popupAnim.SetBool("Select",true);
 
                     pop2NameTxt.text = "StrongHold";
                     pop2HealthTxt.text = healthText.text;
-                    pop2CardImg.sprite = crdImg.sprite;
+                    //pop2CardImg.sprite = crdImg.sprite;
                     popOuterBdr.color = Color.red;
                 }
 
@@ -119,7 +119,7 @@ public class ShP2Card : MonoBehaviour , IPointerClickHandler
             {
                 //PopUpCardP2.SetActive(false);
                 popupAnim.SetBool("Select",false);
-                StartCoroutine(PopUpActiveFalse(0.6f));
+               // StartCoroutine(PopUpActiveFalse(0.6f));
                 foreach (GameObject displayCardObject in player1)
                 {
                     DisplayCard dp = displayCardObject.GetComponent<DisplayCard>();

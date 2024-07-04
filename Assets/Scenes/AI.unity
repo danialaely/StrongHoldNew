@@ -92364,6 +92364,7 @@ MonoBehaviour:
   CounterAttackinP2: 0
   StrongHoldCardP1: {fileID: 2019301597}
   StrongHoldCardP2: {fileID: 1945270804}
+  btnTurn: {fileID: 733181123}
 --- !u!224 &2035970872 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 7780213861218700707, guid: 34cae7e96244b474da5f17df54197ba4, type: 3}
@@ -92438,6 +92439,7 @@ MonoBehaviour:
   CounterAttackinP2: 0
   StrongHoldCardP1: {fileID: 2019301597}
   StrongHoldCardP2: {fileID: 1945270804}
+  btnTurn: {fileID: 733181123}
 --- !u!114 &2039420418
 MonoBehaviour:
   m_ObjectHideFlags: 0
