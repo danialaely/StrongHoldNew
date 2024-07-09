@@ -70,23 +70,22 @@ public class CCardShuffler : MonoBehaviour
 
     }
 
+    /*  private void Update()
+      {
+          Scene currentScene = SceneManager.GetActiveScene();
+          bool isP1Turn = ButtonTurn.GetPlayerTurn();
+          if (currentScene.name == "AI" && !isP1Turn && gm.currentPhase == GamePhase.Draw)
+          {
+              // Call the method if the current scene is "Ai"
+              ShuffleCards();
+              //gm.ChangePhase(GamePhase.Setup);
+              StartCoroutine(ChangingAIPhase(3.0f));
+              StopCoroutine(ChangingAIPhase(3.001f));
 
-  /*  private void Update()
-    {
-        Scene currentScene = SceneManager.GetActiveScene();
-        bool isP1Turn = ButtonTurn.GetPlayerTurn();
-        if (currentScene.name == "AI" && !isP1Turn && gm.currentPhase == GamePhase.Draw)
-        {
-            // Call the method if the current scene is "Ai"
-            ShuffleCards();
-            //gm.ChangePhase(GamePhase.Setup);
-            StartCoroutine(ChangingAIPhase(3.0f));
-            StopCoroutine(ChangingAIPhase(3.001f));
-
-            //StartCoroutine(MoveSelectedCardToRandomSlot(3.2f));
-            //StopCoroutine(MoveSelectedCardToRandomSlot(3.201f));
-        }
-    }*/ 
+              //StartCoroutine(MoveSelectedCardToRandomSlot(3.2f));
+              //StopCoroutine(MoveSelectedCardToRandomSlot(3.201f));
+          }
+      }*/
 
     private void onStartShuffle(DisplayCard2 c)
     {
@@ -253,17 +252,20 @@ public class CCardShuffler : MonoBehaviour
             if (handchildCount == 7 && gm.currentPhase == GamePhase.Draw)
             {
                 lastCard.SetParent(hand.transform);
+               
             }
             if (handchildCount == 6 && gm.currentPhase == GamePhase.Draw)
             {
-                lastCard.SetParent(hand.transform);
-                secondLastCard.SetParent(hand.transform);
+                lastCard.SetParent(hand.transform); 
+                secondLastCard.SetParent(hand.transform);  
             }
             if (handchildCount == 5 && gm.currentPhase == GamePhase.Draw)
             {
                 lastCard.SetParent(hand.transform);
                 secondLastCard.SetParent(hand.transform);
                 thirdLastCard.SetParent(hand.transform);
+
+               
             }
             if (handchildCount == 4 && gm.currentPhase == GamePhase.Draw)
             {
@@ -271,6 +273,8 @@ public class CCardShuffler : MonoBehaviour
                 secondLastCard.SetParent(hand.transform);
                 thirdLastCard.SetParent(hand.transform);
                 fourthLastCard.SetParent(hand.transform);
+
+               
             }
             if (handchildCount == 3 && gm.currentPhase == GamePhase.Draw)
             {
@@ -279,6 +283,8 @@ public class CCardShuffler : MonoBehaviour
                 thirdLastCard.SetParent(hand.transform);
                 fourthLastCard.SetParent(hand.transform);
                 fifthLastCard.SetParent(hand.transform);
+
+              
             }
             if (handchildCount == 2 && gm.currentPhase == GamePhase.Draw)
             {
@@ -288,6 +294,8 @@ public class CCardShuffler : MonoBehaviour
                 fourthLastCard.SetParent(hand.transform);
                 fifthLastCard.SetParent(hand.transform);
                 sixthLastCard.SetParent(hand.transform);
+
+              
             }
             if (handchildCount == 1 && gm.currentPhase == GamePhase.Draw)
             {
@@ -298,6 +306,8 @@ public class CCardShuffler : MonoBehaviour
                 fifthLastCard.SetParent(hand.transform);
                 sixthLastCard.SetParent(hand.transform);
                 seventhLastCard.SetParent(hand.transform);
+
+            
             }
             if (handchildCount == 0 && gm.currentPhase == GamePhase.Draw)
             {

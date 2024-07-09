@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 using Unity.VisualScripting;
 using System.Linq;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
 
 public class ButtonTurn : MonoBehaviour
 {
@@ -126,6 +127,8 @@ public class ButtonTurn : MonoBehaviour
         SelectRandomCard();
         //selectedCard.transform.position = randomSlot.position;
         //CardShufflerP2.remove(selectedCard);
+       // CShufflerP2.handList.Remove(selectedCard.gameObject);
+
         selectedCard.transform.SetParent(randomSlot);
         selectedCard.transform.localPosition = Vector3.zero;
         Image carddBackImage = selectedCard.transform.Find("Back").GetComponent<Image>();
@@ -366,21 +369,95 @@ public class ButtonTurn : MonoBehaviour
      */
     }
 
+    
+
     public void SelectRandomCard()
     {
         int cardCount = handGrid.transform.childCount;
-        //cardshufflerP2.hand.OrderByDescending(card => card.GetComponent<DisplayCard2>().GetCardAttack() + GetComponent<DisplayCard2>().GetCardDefense()).First();
+        bool attackingCard = false;
         //movableCards.OrderByDescending(card => card.GetComponent<DisplayCard2>().GetCardAttack() + GetComponent<DisplayCard2>().GetCardDefense()).First();
+
         if (cardCount > 0)
         {
-            // Generate a random index within the range of cardCount
-            int randomIndex = Random.Range(0, cardCount);  //hand.OrderByDescending(card => card.AttackPower + card.DefensePower).First();
+            if (gameToggleManager.EasyToggle.isOn)
+            {
+                // Generate a random index within the range of cardCount
+                int randomIndex = Random.Range(0, cardCount);  //hand.OrderByDescending(card => card.AttackPower + card.DefensePower).First();
 
-            // Get the selected card object
-            selectedCard = handGrid.transform.GetChild(randomIndex).gameObject;
-            Debug.Log("Selected Card from Hand:" + selectedCard);
-            // Now you have the selected card, you can perform actions on it
-            // For example, you can disable the card, remove it from the hand, etc.
+                // Get the selected card object
+                selectedCard = handGrid.transform.GetChild(randomIndex).gameObject;
+                Debug.Log("Selected Card from Hand:" + selectedCard);
+                // Now you have the selected card, you can perform actions on it
+                // For example, you can disable the card, remove it from the hand, etc.
+            }
+            else if (gameToggleManager.MediumToggle.isOn)
+            {
+                Transform childWithMostEnergy = null;
+                float maxEnergy = float.MinValue;
+
+                foreach (Transform h in handGrid.transform)
+                {
+                    DisplayCard2 dp = h.GetComponent<DisplayCard2>();
+                    if (dp != null)
+                    {
+                        if ((dp.GetCardAttack() + dp.GetCardHealth()) > maxEnergy)
+                        {
+                            maxEnergy = dp.GetCardAttack() + dp.GetCardHealth();
+                            childWithMostEnergy = h;
+                        }
+                    }
+                }
+                if (childWithMostEnergy != null)
+                {
+                    selectedCard = childWithMostEnergy.gameObject;
+                }
+                // selectedCard = handGrid.transform.GetChild(0).gameObject;
+            }
+            else if (gameToggleManager.HardToggle.isOn) 
+            {
+                Transform childWithMostAttacking = null;
+                float maxAttack = float.MinValue;
+
+                attackingCard = !attackingCard;
+                if (attackingCard)
+                {
+                    foreach (Transform h in handGrid.transform) 
+                    {
+                        DisplayCard2 dp = h.GetComponent<DisplayCard2>();
+                        if (dp != null)
+                        {
+                            if (dp.GetCardAttack() > maxAttack)
+                            {
+                                maxAttack = dp.GetCardAttack();
+                                childWithMostAttacking = h;
+                            }
+                        }
+                    }
+                    if (childWithMostAttacking != null)
+                    {
+                        selectedCard = childWithMostAttacking.gameObject;
+                    }
+                }
+                else 
+                {
+                    foreach (Transform h in handGrid.transform)
+                    {
+                        DisplayCard2 dp = h.GetComponent<DisplayCard2>();
+                        if (dp != null)
+                        {
+                            if (dp.GetCardHealth() > maxAttack)
+                            {
+                                maxAttack = dp.GetCardHealth();
+                                childWithMostAttacking = h;
+                            }
+                        }
+                    }
+                    if (childWithMostAttacking != null)
+                    {
+                        selectedCard = childWithMostAttacking.gameObject;
+                    }
+                }
+            }
         }
         else
         {
@@ -472,19 +549,37 @@ public class ButtonTurn : MonoBehaviour
             return numX.CompareTo(numY);
         });
 
-        if (gameToggleManager.EasyToggle.isOn) 
+        if (gameToggleManager.EasyToggle.isOn || gameToggleManager.MediumToggle.isOn) 
         {
             BoardSlt = adjacentBSlots[Random.Range(0, adjacentBSlots.Count)];
         }
 
-        if (gameToggleManager.HardToggle.isOn)
-        {    //if selectedCard.defense > selectedcardattack
-            for (int i = adjacentBSlots.Count - 1; i >= 0; i--)
+        else if (gameToggleManager.HardToggle.isOn)
+        {    //if selectedCARD.defense > selectedcardattack
+            float cdefense = selectedCARD.GetComponent<DisplayCard2>().GetCardHealth();
+            float cattack = selectedCARD.GetComponent<DisplayCard2>().GetCardAttack();
+            Debug.Log("ATTACK:"+cattack+"\t"+"DEFENSE:"+cdefense);
+
+            if (cattack > cdefense)
             {
-                if (adjacentBSlots[i].childCount == 0)
+                for (int i = adjacentBSlots.Count - 1; i >= 0; i--)
                 {
-                    BoardSlt = adjacentBSlots[i];
-                    break; // Exit the loop as soon as we find a slot without a child
+                    if (adjacentBSlots[i].childCount == 0)
+                    {
+                        BoardSlt = adjacentBSlots[i];
+                        break; // Exit the loop as soon as we find a slot without a child
+                    }
+                }
+            }
+            else if (cattack < cdefense)
+            {
+                for (int i = 0; i <= adjacentBSlots.Count ; i++)
+                {
+                    if (adjacentBSlots[i].childCount == 0)
+                    {
+                        BoardSlt = adjacentBSlots[i];
+                        break; // Exit the loop as soon as we find a slot without a child
+                    }
                 }
             }
             //else
@@ -533,10 +628,35 @@ public class ButtonTurn : MonoBehaviour
         Attack();
         if (AiAttackCards.Count > 0)
         {
-            do
+            GameObject cardWithMostAttacking = null;
+            float maxEnergy = float.MinValue;
+
+            if (gameToggleManager.EasyToggle.isOn)
             {
-                randomAiAtcCard = AiAttackCards[Random.Range(0, AiAttackCards.Count)];
-            } while (randomAiAtcCard.name == "SHCardP2");
+                do
+                {
+                    randomAiAtcCard = AiAttackCards[Random.Range(0, AiAttackCards.Count)];
+                } while (randomAiAtcCard.name == "SHCardP2");
+            }
+            else if (gameToggleManager.HardToggle.isOn || gameToggleManager.MediumToggle.isOn) 
+            {
+                foreach (GameObject atc in AiAttackCards) 
+                {
+                    DisplayCard2 dp = atc.GetComponent<DisplayCard2>();
+                    if (dp != null) 
+                    {
+                        if (dp.GetCardAttack() > maxEnergy)
+                        {
+                            maxEnergy = dp.GetCardAttack();
+                            cardWithMostAttacking = atc;
+                        }
+                    }
+                }
+                if (cardWithMostAttacking != null) 
+                {
+                    randomAiAtcCard = cardWithMostAttacking.gameObject;
+                }
+            }
             
             Debug.Log("Picked card for attack:" + randomAiAtcCard);
             randomAiAtcCard.GetComponent<DisplayCard2>().OnPtClc();
@@ -547,7 +667,34 @@ public class ButtonTurn : MonoBehaviour
             if (adjCards.Count > 0)
             {
                 // Select a random adjacent card for defense
-                defenseCard = adjCards[Random.Range(0, adjCards.Count)];  //RATHER THAN PICKING RANDOM CARD FOR DEFENSE, CHOOSE WITH ONE LOWER DEFENSE
+                if (gameToggleManager.EasyToggle.isOn)
+                {
+                    defenseCard = adjCards[Random.Range(0, adjCards.Count)];  //RATHER THAN PICKING RANDOM CARD FOR DEFENSE, CHOOSE WITH ONE LOWER DEFENSE
+                }
+                else if (gameToggleManager.HardToggle.isOn || gameToggleManager.MediumToggle.isOn) 
+                {
+                    GameObject childWithLowestEnergy = null;
+                    float minEnergy = float.MaxValue;
+
+                    foreach (GameObject def in adjCards) 
+                    {
+                        DisplayCard d = def.GetComponent<DisplayCard>();
+
+                        if(d != null) 
+                        {
+                            if (d.GetCardHealth() < minEnergy) 
+                            {
+                                minEnergy = d.GetCardHealth();
+                                childWithLowestEnergy = def;
+                            }
+                        }
+                    }
+                    if(childWithLowestEnergy != null) 
+                    {
+                        defenseCard = childWithLowestEnergy.gameObject;
+                    }
+                }
+
                 defenseCard.GetComponent<DisplayCard>().OnPtcClk();
                 StartCoroutine(RollingDice(2.0f));
                 StartCoroutine(DeselectAtcCard(6.0f));
@@ -588,6 +735,12 @@ public class ButtonTurn : MonoBehaviour
     {
         yield return new WaitForSeconds(delayed);
         gmm.ChangePhase(GamePhase.Attack);
+        //SelectAttackCard();
+    }
+
+    IEnumerator Attacking(float del) 
+    {
+        yield return new WaitForSeconds(del);
         SelectAttackCard();
     }
 
@@ -596,11 +749,27 @@ public class ButtonTurn : MonoBehaviour
         yield return new WaitForSeconds(delay);
         gmm.ChangePhase(GamePhase.Play);
         //  SelectRandomCard();
-        StartCoroutine(PlaceToBoard(2.0f));
-        StartCoroutine(ChangeAIPhaseToMove(3.0f));
-        StartCoroutine(MoveInBoard(4.0f));
-        //StartCoroutine(MoveInBoard(7.0f));
-        StartCoroutine(ChangeAIPhaseToAttack(5.0f));
+        if (gameToggleManager.EasyToggle.isOn || gameToggleManager.MediumToggle.isOn)
+        {
+            StartCoroutine(PlaceToBoard(2.0f));
+            StartCoroutine(ChangeAIPhaseToMove(3.0f));
+            StartCoroutine(MoveInBoard(4.0f));
+            //StartCoroutine(MoveInBoard(7.0f));
+            StartCoroutine(ChangeAIPhaseToAttack(5.0f));
+            StartCoroutine(Attacking(6.0f));
+        }
+        else if (gameToggleManager.HardToggle.isOn) 
+        {
+            StartCoroutine(PlaceToBoard(2.0f));
+            StartCoroutine(PlaceToBoard(3.0f));
+            StartCoroutine(ChangeAIPhaseToMove(4.0f));
+            StartCoroutine(MoveInBoard(5.0f));
+            //StartCoroutine(MoveInBoard(7.0f));
+            StartCoroutine(ChangeAIPhaseToAttack(6.0f));
+            StartCoroutine(Attacking(6.0f));
+           // StartCoroutine(Attacking(9.0f));
+            //StartCoroutine(SelectAttackCard(7.0f));
+        }
     }
 
     public void OnTurnButtonClick()
@@ -633,7 +802,7 @@ public class ButtonTurn : MonoBehaviour
                 adjacentBSlots.Clear();
                 // boardSlot.UpdateMoveListP2();
                 //  boardSlot.AnotherMethod2();
-                if (currentScene.name =="AI" && gameToggleManager.EasyToggle.isOn) //HERE HERE HERE HERE
+                if (currentScene.name =="AI") //HERE HERE HERE HERE  && gameToggleManager.EasyToggle.isOn
                 {
                    StartCoroutine(ChangeAIPhaseToSetup(3.0f));
                 }
