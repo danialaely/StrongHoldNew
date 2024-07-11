@@ -767,7 +767,11 @@ public class ButtonTurn : MonoBehaviour
             //StartCoroutine(MoveInBoard(7.0f));
             StartCoroutine(ChangeAIPhaseToAttack(6.0f));
             StartCoroutine(Attacking(6.0f));
-           // StartCoroutine(Attacking(9.0f));
+            int val = BoardSlot.GetCurrentEnergyP2();
+            if (val > 2) 
+            {
+                StartCoroutine(Attacking(15.0f));
+            }
             //StartCoroutine(SelectAttackCard(7.0f));
         }
     }
