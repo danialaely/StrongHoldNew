@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class MenuToggleManager : MonoBehaviour
 {
@@ -10,11 +11,17 @@ public class MenuToggleManager : MonoBehaviour
     public Toggle MediumToggle;
     public Toggle HardToggle;
 
+    public TMP_InputField userNameText;
+    public GameObject PlayerNamePanel;
+    public GameObject WelcomePanel;
+
     void Start()
     {
         EasyToggle.onValueChanged.AddListener(delegate { ToggleValueChanged(); });
         MediumToggle.onValueChanged.AddListener(delegate { ToggleValueChanged(); });
         HardToggle.onValueChanged.AddListener(delegate { ToggleValueChanged(); });
+
+        ActivateMyPanel(PlayerNamePanel.name);
     }
 
     public void ActiveToggle()
@@ -45,6 +52,31 @@ public class MenuToggleManager : MonoBehaviour
     private void ToggleValueChanged()
     {
         ActiveToggle();
+    }
+
+    public void OnLoginClick()
+    {
+        string name = userNameText.text;
+        if (!string.IsNullOrEmpty(name))
+        {
+            //Debug.Log(name);
+            ActivateMyPanel(WelcomePanel.name);
+        }
+        else 
+        {
+            Debug.Log("Name field is empty");
+        }
+    }
+
+    public void ActivateMyPanel(string panelName) 
+    {
+        PlayerNamePanel.SetActive(panelName.Equals(PlayerNamePanel.name));
+        WelcomePanel.SetActive(panelName.Equals(WelcomePanel.name));
+    }
+
+    public string GetUserName() 
+    {
+        return userNameText.text;
     }
 
 }
