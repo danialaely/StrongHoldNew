@@ -1,21 +1,3 @@
-fileFormatVersion: 2
-guid: a48e4dc44469f4540ab44abb4e199f6e
-TrueTypeFontImporter:
-  externalObjects: {}
-  serializedVersion: 4
-  fontSize: 16
-  forceTextureCase: -2
-  characterSpacing: 0
-  characterPadding: 1
-  includeFontData: 1
-  fontNames:
-  - Tiro Devanagari Marathi
-  fallbackFontReferences: []
-  customCharacters: 
-  fontRenderingMode: 0
-  ascentCalculationMode: 1
-  useLegacyBoundsCalculation: 0
-  shouldRoundAdvanceValue: 1
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 
+version https://git-lfs.github.com/spec/v1
+oid sha256:2325d73b1450698d77d800fd8509c7696b310e1a6a5a0daf971531d7d40fd8a5
+size 488
