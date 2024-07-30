@@ -8,8 +8,11 @@ using Unity.VisualScripting;
 using System.Linq;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
+using Photon.Pun;
+using ExitGames.Client.Photon;
+using Photon.Realtime;
 
-public class ButtonTurn : MonoBehaviour
+public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
 {
 
     private static bool isPlayer1Turn = true;
@@ -73,6 +76,11 @@ public class ButtonTurn : MonoBehaviour
     public List<Transform> adjacentBSlots;
     Transform BoardSlt;
 
+   // public GameObject phaseButton;
+    public Button turnButton; //Line 827   if (PhotonNetwork.isMasterClient) --> turnButton.enabled = false;
+
+    private const byte TurnChangeEventCode = 1;
+
     private void Start()
     {
         boardSlot = FindAnyObjectByType<BoardSlot>();
@@ -112,6 +120,7 @@ public class ButtonTurn : MonoBehaviour
 
     private void Update()
     {
+        if(selectedCard != null)
         if (selectedCard.transform.parent.name == "DiscardPile") 
         {
             CardPlacedToBoard.Remove(selectedCard);
@@ -120,6 +129,7 @@ public class ButtonTurn : MonoBehaviour
         Debug.Log("Adjacent cards P1:"+boardSlot.AdjacentP1Available().Count);
     }
 
+    #region Ai 
     public IEnumerator PlaceToBoard(float delayed)
     {
         yield return new WaitForSeconds(delayed);
@@ -775,12 +785,26 @@ public class ButtonTurn : MonoBehaviour
             //StartCoroutine(SelectAttackCard(7.0f));
         }
     }
-
+    #endregion Ai
     public void OnTurnButtonClick()
     {
         ResetTimer();
-        
-        //DisplayCard.GetTurn();
+
+        if (PhotonNetwork.IsMasterClient) 
+        {
+            Debug.Log("Turn button clicked, raising event");
+
+            // Toggle the turn
+            isPlayer1Turn = !isPlayer1Turn;
+
+            object[] content = new object[] { isPlayer1Turn }; // Array contains the data you want to send
+            RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
+            SendOptions sendOptions = new SendOptions { Reliability = true };
+
+            PhotonNetwork.RaiseEvent(TurnChangeEventCode, content, raiseEventOptions, sendOptions);
+
+            UpdateTurn(isPlayer1Turn);
+        }
 
         if (isPlayer1Turn)
         {
@@ -788,8 +812,6 @@ public class ButtonTurn : MonoBehaviour
             turnText.text = "P2 Turn";  //Button 
             turnCount = 0;
             turnBar.SetTurnTime(turnCount);
-            //StartCoroutine(Turnbar2(1.0f));
-
             turnCount2 = 60;
             turnBar.SetTurnTime2(turnCount2);
 
@@ -798,19 +820,16 @@ public class ButtonTurn : MonoBehaviour
             boardSlot.AnotherMethod2();
 
             Scene currentScene = SceneManager.GetActiveScene();
-            //if (currentScene.name == "AI") {}
-            if (gmm.currentPhase == GamePhase.Draw) 
+            if (gmm.currentPhase == GamePhase.Draw)
             {
-                CShufflerP2.ShuffleCards(); 
-                ResetCanMoveP2(); //RESET THE CanMove OF DPCARD2
+                CShufflerP2.ShuffleCards();
+                ResetCanMoveP2();
                 adjacentBSlots.Clear();
-                // boardSlot.UpdateMoveListP2();
-                //  boardSlot.AnotherMethod2();
-                if (currentScene.name =="AI") //HERE HERE HERE HERE  && gameToggleManager.EasyToggle.isOn
+                if (currentScene.name == "AI")
                 {
-                   StartCoroutine(ChangeAIPhaseToSetup(3.0f));
+                    StartCoroutine(ChangeAIPhaseToSetup(3.0f));
                 }
-                }
+            }
             foreach (DisplayCard otherCard in allDisplayCards)
             {
                 if (otherCard.isSelected)
@@ -818,8 +837,6 @@ public class ButtonTurn : MonoBehaviour
                     otherCard.OnPtcClk();
                 }
             }
-             //foreach (DisplayCard2 otherCards in allDisplayCardsP2) {if (otherCards.isSelected){otherCards.OnPtClc();}}
-            //  MoveSelectedCardToRandomSlot();
         }
         else
         {
@@ -838,7 +855,7 @@ public class ButtonTurn : MonoBehaviour
             Scene currentScene = SceneManager.GetActiveScene();
 
             if (currentScene.name == "SampleScene")
-            { 
+            {
                 foreach (DisplayCard2 otherCard in allDisplayCardsP2)
                 {
                     if (otherCard.isSelected)
@@ -852,6 +869,44 @@ public class ButtonTurn : MonoBehaviour
         // Toggle the turn
         isPlayer1Turn = !isPlayer1Turn;
         Debug.Log("PLAYER 1 TURN:" + isPlayer1Turn);
+    }
+
+    private void UpdateTurn(bool newIsPlayer1Turn)
+    {
+        isPlayer1Turn = newIsPlayer1Turn;
+
+        if (isPlayer1Turn)
+        {
+            gmm.ChangePhase(GamePhase.Draw);
+            turnText.text = "P2 Turn";
+            turnCount = 0;
+            turnBar.SetTurnTime(turnCount);
+
+            turnCount2 = 60;
+            turnBar.SetTurnTime2(turnCount2);
+
+            deckP1.enabled = false;
+            deckP2.enabled = true;
+        }
+        else
+        {
+            gmm.ChangePhase(GamePhase.Draw);
+            turnText.text = "P1 Turn";
+            turnCount2 = 0;
+            turnBar.SetTurnTime2(turnCount2);
+
+            turnCount = 60;
+            turnBar.SetTurnTime(turnCount2);
+
+            if (mainCamera != null)
+            {
+                mainCamera.orthographicSize = originalOrthographicSize;
+                mainCamera.transform.position = originalCamPos;
+            }
+
+            deckP1.enabled = true;
+            deckP2.enabled = false;
+        }
     }
 
     public static bool GetPlayerTurn()
@@ -906,6 +961,18 @@ public class ButtonTurn : MonoBehaviour
         }
     }
 
+    public override void OnEnable()
+    {
+        base.OnEnable();
+        PhotonNetwork.AddCallbackTarget(this);
+    }
+
+    public override void OnDisable()
+    {
+        base.OnDisable();
+        PhotonNetwork.RemoveCallbackTarget(this);
+    }
+
     private void ResetTimer()
     {
         StopCoroutine(turnCoroutine);
@@ -955,6 +1022,18 @@ public class ButtonTurn : MonoBehaviour
             StartCoroutine(Turnbar2(1.0f));
         }
         
+    }
+
+    public void OnEvent(EventData photonEvent)
+    {
+        if (photonEvent.Code == TurnChangeEventCode)
+        {
+            object[] data = (object[])photonEvent.CustomData;
+            bool newIsPlayer1Turn = (bool)data[0];
+
+            // Update the local turn state
+            UpdateTurn(newIsPlayer1Turn);
+        }
     }
 
 }

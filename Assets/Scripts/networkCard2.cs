@@ -17,16 +17,15 @@ public class networkCard2 : MonoBehaviourPun, IPunObservable
     // Update is called once per frame
     void Update()
     {
-        if (photonView.IsMine)
+        if (!photonView.IsMine)
         {
             //Do Nothing
-        }
-        else
-        {
             transform.position = Vector3.Lerp(transform.position, realPosition, 0.1f);
-            //  transform.GetComponent<DisplayCard>().displayId = dispID;
-            //  Debug.Log("Display id:"+ transform.GetComponent<DisplayCard>().displayId);
         }
+        else 
+        {
+        }
+        
     }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
@@ -35,21 +34,21 @@ public class networkCard2 : MonoBehaviourPun, IPunObservable
         if (stream.IsWriting)
         {
             stream.SendNext(transform.position);
-            stream.SendNext(transform.GetComponent<DisplayCard2>().displayId);
+            //stream.SendNext(transform.GetComponent<DisplayCard2>().displayId);
         }
         //if this is other player
         else
         {
             realPosition = (Vector3)stream.ReceiveNext();
-            photonView.RPC("UpdateDisplayId", RpcTarget.AllBuffered, (int)stream.ReceiveNext());
-            transform.GetComponent<DisplayCard2>().UpdateCardInformation();
+            //photonView.RPC("UpdateDisplayId", RpcTarget.AllBuffered, (int)stream.ReceiveNext());
+            //transform.GetComponent<DisplayCard2>().UpdateCardInformation();
         }
     }
 
-    [PunRPC]
-    void UpdateDisplayId(int newDisplayId)
-    {
-        transform.GetComponent<DisplayCard2>().displayId = newDisplayId;
-        Debug.Log("Display id:" + transform.GetComponent<DisplayCard2>().displayId);
-    }
+  //  [PunRPC]
+  //  void UpdateDisplayId(int newDisplayId)
+  //  {
+   //     transform.GetComponent<DisplayCard2>().displayId = newDisplayId;
+   //     Debug.Log("Display id:" + transform.GetComponent<DisplayCard2>().displayId);
+   // }
 }

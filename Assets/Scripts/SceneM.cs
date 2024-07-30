@@ -25,14 +25,19 @@ public class SceneM : MonoBehaviourPunCallbacks
     public GameObject roomListParent;
 
     private Dictionary<string, GameObject> roomListGameobject;
+    private Dictionary<int, GameObject> playerListGameobject;
 
     [Header("Inside Room Panel")]
     public GameObject InsideRoomPanel;
+    public GameObject playerListItemPrefab;
+    public GameObject playerListItemParent;
+    public GameObject playButton;
 
     private void Start()
     {
         roomListData = new Dictionary<string, RoomInfo>();
         roomListGameobject = new Dictionary<string, GameObject>();
+        PhotonNetwork.AutomaticallySyncScene = true;
     }
     private void Update()
     {
@@ -91,6 +96,15 @@ public class SceneM : MonoBehaviourPunCallbacks
         ActivateMyPanel(LobbyPanel.name);
     }
 
+    public void BackFromPlayerList() 
+    {
+        if (PhotonNetwork.InRoom) 
+        {
+            PhotonNetwork.LeaveRoom();
+        }
+        ActivateMyPanel(LobbyPanel.name);
+    }
+
     public void ActivateMyPanel(string panelName)
     {
         LobbyPanel.SetActive(panelName.Equals(LobbyPanel.name));
@@ -121,6 +135,25 @@ public class SceneM : MonoBehaviourPunCallbacks
         }
     }
 
+    public void OnClickPlayButton() 
+    {
+        //SceneManager.LoadScene("SampleScene");
+        if (PhotonNetwork.IsMasterClient) 
+        {
+            PhotonNetwork.LoadLevel("SampleScene");
+           
+        }
+    }
+
+    private IEnumerator LoadSceneAsync(string sceneName)
+    {
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName);
+        while (!asyncLoad.isDone)
+        {
+            // Optionally, you can show a loading progress bar here.
+            yield return null;
+        }
+    }
 
 
     #region Photon_Callbacks
@@ -144,6 +177,65 @@ public class SceneM : MonoBehaviourPunCallbacks
     {
         Debug.Log(PhotonNetwork.LocalPlayer.NickName+" joined the room");
         ActivateMyPanel(InsideRoomPanel.name);
+
+        if (playerListGameobject == null) 
+        {
+            playerListGameobject = new Dictionary<int, GameObject>();
+        }
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            playButton.SetActive(true);
+        }
+        else 
+        {
+            playButton.SetActive(false);
+        }
+
+        foreach (Player p in PhotonNetwork.PlayerList) 
+        {
+            GameObject playerListItem = Instantiate(playerListItemPrefab);
+            playerListItem.transform.SetParent(playerListItemParent.transform);
+            playerListItem.transform.localScale = Vector3.one;
+
+            playerListItem.transform.GetChild(0).gameObject.GetComponent<TMP_Text>().text = p.NickName;
+            playerListGameobject.Add(p.ActorNumber, playerListItem);
+        }
+
+    }
+
+    public override void OnPlayerEnteredRoom(Player newPlayer)
+    {
+        GameObject playerListItem = Instantiate(playerListItemPrefab);
+        playerListItem.transform.SetParent(playerListItemParent.transform);
+        playerListItem.transform.localScale = Vector3.one;
+
+        playerListItem.transform.GetChild(0).gameObject.GetComponent<TMP_Text>().text = newPlayer.NickName;
+        playerListGameobject.Add(newPlayer.ActorNumber, playerListItem);
+    }
+
+    public override void OnPlayerLeftRoom(Player otherPlayer)
+    {
+        Destroy(playerListGameobject[otherPlayer.ActorNumber]);
+        playerListGameobject.Remove(otherPlayer.ActorNumber);
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            playButton.SetActive(true);
+        }
+        else
+        {
+            playButton.SetActive(false);
+        }
+    }
+
+    public override void OnLeftRoom()
+    {
+        ActivateMyPanel(LobbyPanel.name);
+        foreach (GameObject obj in playerListGameobject.Values) 
+        {
+            Destroy(obj);
+        }
     }
 
     public override void OnRoomListUpdate(List<RoomInfo> roomList)

@@ -64,7 +64,7 @@ public class CCardShuffler : MonoBehaviour
         }
         else if(currentScene.name == "SampleScene" && !isP1Turn)
         {
-            ShuffleCards();
+          //  ShuffleCards();    YE WALA COMMENT KIYA HAI ABHI
             //shuffleButton.onClick.AddListener(ShuffleCards);
         }
 

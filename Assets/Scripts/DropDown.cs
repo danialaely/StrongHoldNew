@@ -15,6 +15,12 @@ public class DropDown : MonoBehaviour
 
     public GameObject ToggleGroup;
 
+    private void Start()
+    {
+        PlayBtn.GetComponent<Image>().color = Color.gray;
+        PBtnTxt.color = Color.gray;
+    }
+
     public void HandleInputData(int val) 
     {
         value = val;
@@ -22,8 +28,8 @@ public class DropDown : MonoBehaviour
         {
             SinglePImg.SetActive(false);
             MultiplayerImg.SetActive(true);
-            PlayBtn.GetComponent<Image>().color = Color.white;
-            PBtnTxt.color = Color.white;
+            PlayBtn.GetComponent<Image>().color = Color.gray;
+            PBtnTxt.color = Color.gray;
 
             ToggleGroup.SetActive(false);
         }
@@ -31,8 +37,8 @@ public class DropDown : MonoBehaviour
         {
             SinglePImg.SetActive(true);
             MultiplayerImg.SetActive(false);
-           PlayBtn.GetComponent<Image>().color = Color.gray;
-            PBtnTxt.color = Color.gray;
+           PlayBtn.GetComponent<Image>().color = Color.white;
+            PBtnTxt.color = Color.white;
             //414141
             ToggleGroup.SetActive(true);
         }

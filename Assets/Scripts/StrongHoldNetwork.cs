@@ -1,9 +1,9 @@
+using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Photon.Pun;
 
-public class network_card : MonoBehaviourPun , IPunObservable
+public class StrongHoldNetwork : MonoBehaviourPun, IPunObservable
 {
     Vector3 realPosition = Vector3.zero;
     int dispID;
@@ -11,7 +11,7 @@ public class network_card : MonoBehaviourPun , IPunObservable
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
@@ -20,13 +20,13 @@ public class network_card : MonoBehaviourPun , IPunObservable
         if (photonView.IsMine)
         {
             //Do Nothing
-           
+
         }
-        else 
+        else
         {
-           transform.position = Vector3.Lerp(transform.position, realPosition,0.1f);
-          //  transform.GetComponent<DisplayCard>().displayId = dispID;
-          //  Debug.Log("Display id:"+ transform.GetComponent<DisplayCard>().displayId);
+            transform.position = Vector3.Lerp(transform.position, realPosition, 0.1f);
+            //  transform.GetComponent<DisplayCard>().displayId = dispID;
+            //  Debug.Log("Display id:"+ transform.GetComponent<DisplayCard>().displayId);
         }
     }
 
@@ -39,18 +39,11 @@ public class network_card : MonoBehaviourPun , IPunObservable
             //stream.SendNext(transform.GetComponent<DisplayCard>().displayId);
         }
         //if this is other player
-        else 
+        else
         {
             realPosition = (Vector3)stream.ReceiveNext();
-           // photonView.RPC("UpdateDisplayId", RpcTarget.AllBuffered, (int)stream.ReceiveNext());
-           // transform.GetComponent<DisplayCard>().UpdateCardInformation();
+            // photonView.RPC("UpdateDisplayId", RpcTarget.AllBuffered, (int)stream.ReceiveNext());
+            // transform.GetComponent<DisplayCard>().UpdateCardInformation();
         }
     }
-
-  /*  [PunRPC]
-    void UpdateDisplayId(int newDisplayId)
-    {
-        transform.GetComponent<DisplayCard>().displayId = newDisplayId;
-        Debug.Log("Display id:" + transform.GetComponent<DisplayCard>().displayId);
-    }*/
 }

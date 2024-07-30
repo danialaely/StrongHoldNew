@@ -41,7 +41,7 @@ public class CardShuffler : MonoBehaviour
         if (!PhotonNetwork.IsMasterClient) 
         {
         }
-        ShuffleCards();
+       // ShuffleCards();
        // shuffleButton.onClick.AddListener(ShuffleCards);
     }
 
