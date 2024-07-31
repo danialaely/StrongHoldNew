@@ -5,6 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using Photon.Pun;
+using UnityEngine.SceneManagement;
 
 public class CardShuffler : MonoBehaviour
 {
@@ -31,6 +32,7 @@ public class CardShuffler : MonoBehaviour
     private void Start()
     {
        // boardSlot = FindAnyObjectByType<BoardSlot>();
+       //Scene currentS = SceneManager.GetActiveScene();
    
         foreach (var card in displayCards)
         {
@@ -40,8 +42,8 @@ public class CardShuffler : MonoBehaviour
         // Add a click listener to the shuffle button
         if (!PhotonNetwork.IsMasterClient) 
         {
-        }
        // ShuffleCards();
+        }
        // shuffleButton.onClick.AddListener(ShuffleCards);
     }
 

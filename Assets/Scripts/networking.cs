@@ -22,6 +22,9 @@ public class networking : MonoBehaviourPunCallbacks
 
     public GameObject turnButton;
     public GameObject phaseButton;
+    public GameObject phaseText;
+    public GameObject turnBar1;
+    public GameObject turnBar2;
 
     // Start is called before the first frame update
     void Start()
@@ -42,6 +45,9 @@ public class networking : MonoBehaviourPunCallbacks
             //turnButton.transform.position = new Vector3(444.1642f, 284.612f, -59.94021f);
             turnButton.transform.rotation = Quaternion.Euler(0, 0, 0);
             phaseButton.transform.rotation = Quaternion.Euler(0, 0, 0);
+            phaseText.transform.rotation = Quaternion.Euler(0, 0, 0);
+            turnBar1.transform.rotation = Quaternion.Euler(0, 0, 0);
+            turnBar2.transform.rotation = Quaternion.Euler(0, 0, 0);
 
 
             foreach (GameObject master in player1) 
@@ -62,6 +68,9 @@ public class networking : MonoBehaviourPunCallbacks
             //turnButton.transform.position = new Vector3(444.1642f, 284.612f, -10f);
             turnButton.transform.rotation = Quaternion.Euler(0, 0, 180);
             phaseButton.transform.rotation = Quaternion.Euler(0, 0, 180);
+            phaseText.transform.rotation = Quaternion.Euler(0, 0, 180);
+            turnBar1.transform.rotation = Quaternion.Euler(0, 0, 180);
+            turnBar2.transform.rotation = Quaternion.Euler(0, 0, 180);
 
             foreach (GameObject remote in player2)
             {

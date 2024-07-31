@@ -77,7 +77,7 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
     Transform BoardSlt;
 
    // public GameObject phaseButton;
-    public Button turnButton; //Line 827   if (PhotonNetwork.isMasterClient) --> turnButton.enabled = false;
+    public GameObject turnButton; //Line 827   if (PhotonNetwork.isMasterClient) --> turnButton.enabled = false;
 
     private const byte TurnChangeEventCode = 1;
 
@@ -114,6 +114,12 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
         {
             originalOrthographicSize = mainCamera.orthographicSize;
             originalCamPos = mainCamera.transform.position;
+        }
+
+        Scene cs = SceneManager.GetActiveScene();
+        if (cs.name == "SampleScene") 
+        {
+            OnTurnButtonClick();
         }
         
     }
@@ -789,8 +795,8 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
     public void OnTurnButtonClick()
     {
         ResetTimer();
-
-        if (PhotonNetwork.IsMasterClient) 
+        Scene cs = SceneManager.GetActiveScene();
+        if (cs.name=="SampleScene")
         {
             Debug.Log("Turn button clicked, raising event");
 
@@ -805,8 +811,9 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
 
             UpdateTurn(isPlayer1Turn);
         }
-
-        if (isPlayer1Turn)
+        if (cs.name == "AI")
+        {
+            if (isPlayer1Turn)
         {
             gmm.ChangePhase(GamePhase.Draw);
             turnText.text = "P2 Turn";  //Button 
@@ -864,7 +871,7 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
                     }
                 }
             }
-        }
+        } }
 
         // Toggle the turn
         isPlayer1Turn = !isPlayer1Turn;
@@ -874,7 +881,7 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
     private void UpdateTurn(bool newIsPlayer1Turn)
     {
         isPlayer1Turn = newIsPlayer1Turn;
-
+       
         if (isPlayer1Turn)
         {
             gmm.ChangePhase(GamePhase.Draw);
@@ -887,6 +894,16 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
 
             deckP1.enabled = false;
             deckP2.enabled = true;
+
+            if (PhotonNetwork.IsMasterClient)
+            {
+                turnButton.SetActive(false);
+            }
+            else 
+            {
+                turnButton.SetActive(true);
+            }
+           
         }
         else
         {
@@ -906,6 +923,15 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
 
             deckP1.enabled = true;
             deckP2.enabled = false;
+
+            if (PhotonNetwork.IsMasterClient)
+            {
+                turnButton.SetActive(true);
+            }
+            else
+            {
+                turnButton.SetActive(false);
+            }
         }
     }
 
@@ -916,8 +942,10 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
 
     private IEnumerator ChangeTurn(float delay)
     {
+        Scene currentS = SceneManager.GetActiveScene();
         while (true)
         {
+            if(currentS.name == "AI") { 
             if (isPlayer1Turn)
             {
                 gmm.ChangePhase(GamePhase.Draw);
@@ -952,7 +980,7 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
                 deckP1.enabled = false;
                 deckP2.enabled = true;
                // boardSlot.AnotherMethod2();
-            }
+            } }
            // Debug.Log("IS PLAYER TURN:"+isPlayer1Turn);
 
             yield return new WaitForSeconds(delay);
