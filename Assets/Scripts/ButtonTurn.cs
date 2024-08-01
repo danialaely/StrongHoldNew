@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 using Photon.Pun;
 using ExitGames.Client.Photon;
 using Photon.Realtime;
+using System.Diagnostics.Tracing;
 
 public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
 {
@@ -80,6 +81,7 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
     public GameObject turnButton; //Line 827   if (PhotonNetwork.isMasterClient) --> turnButton.enabled = false;
 
     private const byte TurnChangeEventCode = 1;
+    public const byte ResetTimerEventCode = 2;
 
     private void Start()
     {
@@ -91,6 +93,8 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
         allDisplayCards = new List<DisplayCard>(FindObjectsOfType<DisplayCard>());
         allDisplayCardsP2 = new List<DisplayCard2>(FindObjectsOfType<DisplayCard2>());
 
+        Scene cs = SceneManager.GetActiveScene();
+       
         turnCoroutine = StartCoroutine(ChangeTurn(60.0f));
         TurnStarter(isPlayer1Turn);
         // currentScene = SceneManager.GetActiveScene();
@@ -116,10 +120,10 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
             originalCamPos = mainCamera.transform.position;
         }
 
-        Scene cs = SceneManager.GetActiveScene();
-        if (cs.name == "SampleScene") 
+        if (PhotonNetwork.IsMasterClient) 
         {
-            OnTurnButtonClick();
+            //  OnTurnButtonClick();
+            StartCoroutine(StartingtheGame(5.0f));
         }
         
     }
@@ -792,6 +796,12 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
         }
     }
     #endregion Ai
+
+    IEnumerator StartingtheGame(float delay) 
+    {
+        yield return new WaitForSeconds(delay);
+        OnTurnButtonClick();
+    }
     public void OnTurnButtonClick()
     {
         ResetTimer();
@@ -1003,9 +1013,29 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
 
     private void ResetTimer()
     {
-        StopCoroutine(turnCoroutine);
+        if (turnCoroutine != null) 
+        {
+            StopCoroutine(turnCoroutine);
+        }
+
+        // Send the reset timer event to the client
+        object[] content = new object[] { 60.0f }; // Pass any additional data if necessary
+        RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.Others };
+        SendOptions sendOptions = new SendOptions { Reliability = true };
+
+        PhotonNetwork.RaiseEvent(ResetTimerEventCode, content, raiseEventOptions, sendOptions);
 
         turnCoroutine = StartCoroutine(ChangeTurn(60.0f));
+    }
+
+    private void ResetClientTimer(float timerValue)
+    {
+        if (turnCoroutine != null)
+        {
+            StopCoroutine(turnCoroutine);
+        }
+
+        turnCoroutine = StartCoroutine(ChangeTurn(timerValue));
     }
 
     private IEnumerator Turnbar(float delay)
@@ -1061,6 +1091,15 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
 
             // Update the local turn state
             UpdateTurn(newIsPlayer1Turn);
+        }
+
+        if (photonEvent.Code == ResetTimerEventCode)
+        {
+            object[] data = (object[])photonEvent.CustomData;
+            float newTimerValue = (float)data[0];
+
+            // Reset the client's timer and restart the coroutine
+            ResetClientTimer(newTimerValue);
         }
     }
 
