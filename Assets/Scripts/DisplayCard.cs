@@ -6,9 +6,11 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
 using Image = UnityEngine.UI.Image;
+using Photon.Pun;
+using UnityEngine.SceneManagement;
 //using static UnityEditor.Experimental.GraphView.GraphView;
 
-public class DisplayCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
+public class DisplayCard : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
 {
     public List<Card> display = new List<Card>();
     public int displayId;
@@ -304,15 +306,16 @@ public class DisplayCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     public void OnPtcClk() 
     {
         bool isP1Turn = ButtonTurn.GetPlayerTurn();    // Debug.Log("DC P1 Turn:"+isTurn);
-
-       /* //bool isZoom = Zoom.GetBool();
-        if (isZoom)
-        {
-             Vector3 offt1 = new Vector3(-400f, 0, 0);
-             dice1.transform.position = this.transform.position + offt1;
-             dice2.transform.position = this.transform.position - offt1;
-        } */
-
+        Debug.Log("P1TURN IN DISPLAYCARD:"+isP1Turn);
+        /* //bool isZoom = Zoom.GetBool();
+         if (isZoom)
+         {
+              Vector3 offt1 = new Vector3(-400f, 0, 0);
+              dice1.transform.position = this.transform.position + offt1;
+              dice2.transform.position = this.transform.position - offt1;
+         } */
+        Scene s = SceneManager.GetActiveScene();
+        
         if (isP1Turn)
         {
 

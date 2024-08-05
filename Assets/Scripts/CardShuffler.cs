@@ -39,10 +39,11 @@ public class CardShuffler : MonoBehaviour
             onStartShuffle(card);
         }
 
+        Scene currenS = SceneManager.GetActiveScene();
         // Add a click listener to the shuffle button
-        if (!PhotonNetwork.IsMasterClient) 
+        if (currenS.name=="AI") 
         {
-          // ShuffleCards();
+           ShuffleCards();
         }
        // shuffleButton.onClick.AddListener(ShuffleCards);
     }

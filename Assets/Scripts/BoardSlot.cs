@@ -1,3 +1,4 @@
+using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -6,7 +7,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class BoardSlot : MonoBehaviour, IDropHandler
+public class BoardSlot : MonoBehaviourPunCallbacks, IDropHandler
 {
     public TMP_Text energyText;
     public TMP_Text energyTextP2;
@@ -220,7 +221,7 @@ public class BoardSlot : MonoBehaviour, IDropHandler
     {
         DisplayCard card = eventData.pointerDrag.GetComponent<DisplayCard>();
         DisplayCard2 cardd = eventData.pointerDrag.GetComponent<DisplayCard2>();
-
+        Debug.Log("THIS MUST BE WORKING ON DROP");
         //  if (card.transform.parent.name == "Hand"){ }
         bool isP1Turn = ButtonTurn.GetPlayerTurn();
 
@@ -458,16 +459,20 @@ public class BoardSlot : MonoBehaviour, IDropHandler
         }
 
         //if (card.transform.parent.name == "Hand2"){ }
-        else if (cardd.gameObject.tag == "Player2")   //(2):CARD PLACEMENT PHASE
+        else if (cardd.gameObject.tag == "Player2" || !PhotonNetwork.IsMasterClient)   //(2):CARD PLACEMENT PHASE
         {
+            //Debug.Log("THIS FUNCTION IS WORKING:"+cardd.transform.parent.name);
             if (cardd != null && transform.childCount == 0)
             {
                 int carddEnergy = cardd.GetCardEnergy();
-
+                
                 if (int.TryParse(energyTextP2.text, out currentEnergyP2))
                 {
+                    Debug.Log("CURRENTENERGY P2:"+currentEnergyP2);
+                    Debug.Log("CARDD ENERGY:"+carddEnergy);
                     if (currentEnergyP2 >= carddEnergy && !isP1Turn)
                     {
+                        Debug.Log("I AM HERE");
                         int rowIndex = transform.GetSiblingIndex();
                        // int maxRowIndex = 14;
 

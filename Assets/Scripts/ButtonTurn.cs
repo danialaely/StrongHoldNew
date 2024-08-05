@@ -46,7 +46,7 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
     GameObject selectedCARD;
 
     List<Transform> availableSlotsMove;
-  //  Transform randomSlotMove;
+    //  Transform randomSlotMove;
 
     public List<GameObject> CardPlacedToBoard = new List<GameObject>();
 
@@ -64,8 +64,8 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
 
     public List<DisplayCard> allDisplayCards; // Reference to all DisplayCard instances
     public List<DisplayCard2> allDisplayCardsP2; // Reference to all DisplayCard instances
-    //  Scene currentScene;
-    
+                                                 //  Scene currentScene;
+
     public GameToggleManager gameToggleManager;
 
     public string Movtag = "Player2";
@@ -77,7 +77,7 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
     public List<Transform> adjacentBSlots;
     Transform BoardSlt;
 
-   // public GameObject phaseButton;
+    // public GameObject phaseButton;
     public GameObject turnButton; //Line 827   if (PhotonNetwork.isMasterClient) --> turnButton.enabled = false;
 
     private const byte TurnChangeEventCode = 1;
@@ -94,9 +94,11 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
         allDisplayCardsP2 = new List<DisplayCard2>(FindObjectsOfType<DisplayCard2>());
 
         Scene cs = SceneManager.GetActiveScene();
-       
+
         turnCoroutine = StartCoroutine(ChangeTurn(60.0f));
-        TurnStarter(isPlayer1Turn);
+        
+        TurnStarter(!isPlayer1Turn);
+        
         // currentScene = SceneManager.GetActiveScene();
         player2 = GameObject.FindGameObjectsWithTag(Movtag);
         GameObject[] gameObjectsWithTag = GameObject.FindGameObjectsWithTag("BSlot");
@@ -120,23 +122,25 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
             originalCamPos = mainCamera.transform.position;
         }
 
-        if (PhotonNetwork.IsMasterClient) 
+        if (PhotonNetwork.IsMasterClient)
         {
             //  OnTurnButtonClick();
             StartCoroutine(StartingtheGame(5.0f));
         }
-        
+
     }
 
     private void Update()
     {
-        if(selectedCard != null)
-        if (selectedCard.transform.parent.name == "DiscardPile") 
-        {
-            CardPlacedToBoard.Remove(selectedCard);
-        }
-     //   Debug.Log("Adjacent cards P2:"+boardSlot.MoveAvailable().Count);
-        Debug.Log("Adjacent cards P1:"+boardSlot.AdjacentP1Available().Count);
+        if (selectedCard != null)
+            if (selectedCard.transform.parent.name == "DiscardPile")
+            {
+                CardPlacedToBoard.Remove(selectedCard);
+            }
+        //   Debug.Log("Adjacent cards P2:"+boardSlot.MoveAvailable().Count);
+        Debug.Log("Adjacent cards P1:" + boardSlot.AdjacentP1Available().Count);
+        Debug.Log("Player1Turn from getplayerturn:"+GetPlayerTurn());
+        Debug.Log("Simple is player1Turn:"+isPlayer1Turn);
     }
 
     #region Ai 
@@ -147,7 +151,7 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
         SelectRandomCard();
         //selectedCard.transform.position = randomSlot.position;
         //CardShufflerP2.remove(selectedCard);
-       // CShufflerP2.handList.Remove(selectedCard.gameObject);
+        // CShufflerP2.handList.Remove(selectedCard.gameObject);
 
         selectedCard.transform.SetParent(randomSlot);
         selectedCard.transform.localPosition = Vector3.zero;
@@ -157,15 +161,15 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
 
         // boardSlot.UpdateMoveListP2();
         CardPlacedToBoard.Add(selectedCard); // FINE TILL HERE   "CARD PLACED FROM HAND TO BOARD HAVE BEEN ADDED TO LIST"
-        Debug.Log("Card in new list:"+CardPlacedToBoard.Count);
+        Debug.Log("Card in new list:" + CardPlacedToBoard.Count);
         int cardE = selectedCard.GetComponent<DisplayCard2>().GetCardEnergy();
-        int CoinE =  BoardSlot.GetCurrentEnergyP2();
+        int CoinE = BoardSlot.GetCurrentEnergyP2();
         int newCoinE = CoinE - cardE;
         BoardSlot.SetCurrentEnergyP2(newCoinE);
         Debug.Log("Card Energy:" + cardE);
         Debug.Log("Old CEnergy:" + CoinE);
-        Debug.Log("New CEnergy:"+newCoinE);
-        if (newCoinE == 7) 
+        Debug.Log("New CEnergy:" + newCoinE);
+        if (newCoinE == 7)
         {
             boardSlot.coinP2img8.SetActive(false);
         }
@@ -224,7 +228,7 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
             boardSlot.coinP2img3.SetActive(false);
             boardSlot.coinP2img2.SetActive(false);
             boardSlot.coinP2img.SetActive(false);
-        } 
+        }
         if (newCoinE == -1)
         {
             boardSlot.energyTextP2.text = "0";
@@ -241,10 +245,10 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
         // boardSlot.UpdateMoveListP2();
     }
 
-    public IEnumerator MoveInBoard(float del) 
+    public IEnumerator MoveInBoard(float del)
     {
         yield return new WaitForSeconds(del);
-       // SelectRandomMoveSlot();
+        // SelectRandomMoveSlot();
         //SelectCardToMove();
         GetAdjacentBslotCards();
         GetRandomMoveBSlot();
@@ -381,15 +385,15 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
 
     public void SelectRandomMoveSlot() //Movement of card on board MovePhase
     {
-     /*   do 
-        {
-            randomSlotMove = availableSlotsMove[Random.Range(0, availableSlotsMove.Count)];    //APPLY SAME LOGIC FOR CARD SELECTION
-        } while (randomSlotMove.childCount > 0);
-        Debug.Log("Move Phase BoardSlot:"+randomSlotMove);
-     */
+        /*   do 
+           {
+               randomSlotMove = availableSlotsMove[Random.Range(0, availableSlotsMove.Count)];    //APPLY SAME LOGIC FOR CARD SELECTION
+           } while (randomSlotMove.childCount > 0);
+           Debug.Log("Move Phase BoardSlot:"+randomSlotMove);
+        */
     }
 
-    
+
 
     public void SelectRandomCard()
     {
@@ -433,7 +437,7 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
                 }
                 // selectedCard = handGrid.transform.GetChild(0).gameObject;
             }
-            else if (gameToggleManager.HardToggle.isOn) 
+            else if (gameToggleManager.HardToggle.isOn)
             {
                 Transform childWithMostAttacking = null;
                 float maxAttack = float.MinValue;
@@ -441,7 +445,7 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
                 attackingCard = !attackingCard;
                 if (attackingCard)
                 {
-                    foreach (Transform h in handGrid.transform) 
+                    foreach (Transform h in handGrid.transform)
                     {
                         DisplayCard2 dp = h.GetComponent<DisplayCard2>();
                         if (dp != null)
@@ -458,7 +462,7 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
                         selectedCard = childWithMostAttacking.gameObject;
                     }
                 }
-                else 
+                else
                 {
                     foreach (Transform h in handGrid.transform)
                     {
@@ -490,17 +494,17 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
         var movableCards = CardPlacedToBoard.Where(card => card.GetComponent<DisplayCard2>().canMove).ToList();
         //movableCards.OrderByDescending(card => card.GetComponent<DisplayCard2>().GetCardAttack() + GetComponent<DisplayCard2>().GetCardDefense()).First();
         if (movableCards.Count > 0)
-        {  
+        {
             selectedCARD = movableCards[Random.Range(0, movableCards.Count)]; //movableCards[0]
         }
-        else 
+        else
         {
             Debug.Log("CanMove is False");
         }
-       /* do 
-        {
-            selectedCARD = CardPlacedToBoard[Random.Range(0, CardPlacedToBoard.Count)];   //WORKING HERE
-        } while (selectedCARD.GetComponent<DisplayCard2>().canMove); */
+        /* do 
+         {
+             selectedCARD = CardPlacedToBoard[Random.Range(0, CardPlacedToBoard.Count)];   //WORKING HERE
+         } while (selectedCARD.GetComponent<DisplayCard2>().canMove); */
     }
 
     public void GetAdjacentP2Cards()  //Adjacent cards of selected p2 Card. 
@@ -508,7 +512,7 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
         SelectCardToMove();
         adjacentp2List.Clear();
 
-        foreach (GameObject p2 in player2) 
+        foreach (GameObject p2 in player2)
         {
             float distance = Vector3.Distance(p2.transform.position, selectedCARD.transform.position);
             if (p2.gameObject.name == "SHCardP2")
@@ -518,7 +522,7 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
                     adjacentp2List.Add(p2);
                 }
             }
-            else 
+            else
             {
                 DisplayCard2 displayCard2 = p2.GetComponent<DisplayCard2>();
                 if (distance < 210f && p2 != selectedCARD.gameObject && displayCard2.canMove)
@@ -529,17 +533,17 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
         }
     }
 
-    public void GetAdjacentBslotCards() 
+    public void GetAdjacentBslotCards()
     {
         GetAdjacentP2Cards();
         adjacentBSlots.Clear();
 
-        foreach (Transform bslot in BSlots) 
+        foreach (Transform bslot in BSlots)
         {
             foreach (GameObject p2 in adjacentp2List)
             {
                 float dist = Vector3.Distance(p2.transform.position, bslot.transform.position);
-                if (dist < 210f && bslot.childCount == 0) 
+                if (dist < 210f && bslot.childCount == 0)
                 {
                     adjacentBSlots.Add(bslot);
                 }
@@ -549,17 +553,17 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
 
     public void ResetCanMoveP2() //RESETTING CANMOVE TO TRUE
     {
-        foreach (GameObject p2 in CardPlacedToBoard) 
+        foreach (GameObject p2 in CardPlacedToBoard)
         {
             DisplayCard2 dpcard2 = p2.GetComponent<DisplayCard2>();
-            if (dpcard2.canMove==false) 
+            if (dpcard2.canMove == false)
             {
                 dpcard2.canMove = true;
             }
         }
     }
 
-    public void GetRandomMoveBSlot() 
+    public void GetRandomMoveBSlot()
     {
         //selectedCARD = CardPlacedToBoard[Random.Range(0, CardPlacedToBoard.Count)];
         adjacentBSlots.Sort((x, y) =>
@@ -569,7 +573,7 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
             return numX.CompareTo(numY);
         });
 
-        if (gameToggleManager.EasyToggle.isOn || gameToggleManager.MediumToggle.isOn) 
+        if (gameToggleManager.EasyToggle.isOn || gameToggleManager.MediumToggle.isOn)
         {
             BoardSlt = adjacentBSlots[Random.Range(0, adjacentBSlots.Count)];
         }
@@ -578,7 +582,7 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
         {    //if selectedCARD.defense > selectedcardattack
             float cdefense = selectedCARD.GetComponent<DisplayCard2>().GetCardHealth();
             float cattack = selectedCARD.GetComponent<DisplayCard2>().GetCardAttack();
-            Debug.Log("ATTACK:"+cattack+"\t"+"DEFENSE:"+cdefense);
+            Debug.Log("ATTACK:" + cattack + "\t" + "DEFENSE:" + cdefense);
 
             if (cattack > cdefense)
             {
@@ -593,7 +597,7 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
             }
             else if (cattack < cdefense)
             {
-                for (int i = 0; i <= adjacentBSlots.Count ; i++)
+                for (int i = 0; i <= adjacentBSlots.Count; i++)
                 {
                     if (adjacentBSlots[i].childCount == 0)
                     {
@@ -623,12 +627,12 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
         return 0;
     }
 
-    public void Attack() 
+    public void Attack()
     {
         //Same logic random slot, the adjacent would be "player2"
-        if (adjacentSlotsP1.Count>0) 
+        if (adjacentSlotsP1.Count > 0)
         {
-            foreach (Transform slot in adjacentSlotsP1) 
+            foreach (Transform slot in adjacentSlotsP1)
             {
                 if (slot.childCount > 0)  // Added check for child count
                 {
@@ -658,12 +662,12 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
                     randomAiAtcCard = AiAttackCards[Random.Range(0, AiAttackCards.Count)];
                 } while (randomAiAtcCard.name == "SHCardP2");
             }
-            else if (gameToggleManager.HardToggle.isOn || gameToggleManager.MediumToggle.isOn) 
+            else if (gameToggleManager.HardToggle.isOn || gameToggleManager.MediumToggle.isOn)
             {
-                foreach (GameObject atc in AiAttackCards) 
+                foreach (GameObject atc in AiAttackCards)
                 {
                     DisplayCard2 dp = atc.GetComponent<DisplayCard2>();
-                    if (dp != null) 
+                    if (dp != null)
                     {
                         if (dp.GetCardAttack() > maxEnergy)
                         {
@@ -672,12 +676,12 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
                         }
                     }
                 }
-                if (cardWithMostAttacking != null) 
+                if (cardWithMostAttacking != null)
                 {
                     randomAiAtcCard = cardWithMostAttacking.gameObject;
                 }
             }
-            
+
             Debug.Log("Picked card for attack:" + randomAiAtcCard);
             randomAiAtcCard.GetComponent<DisplayCard2>().OnPtClc();
             // Assuming adjCards is a list of adjacent cards of the player being attacked
@@ -691,25 +695,25 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
                 {
                     defenseCard = adjCards[Random.Range(0, adjCards.Count)];  //RATHER THAN PICKING RANDOM CARD FOR DEFENSE, CHOOSE WITH ONE LOWER DEFENSE
                 }
-                else if (gameToggleManager.HardToggle.isOn || gameToggleManager.MediumToggle.isOn) 
+                else if (gameToggleManager.HardToggle.isOn || gameToggleManager.MediumToggle.isOn)
                 {
                     GameObject childWithLowestEnergy = null;
                     float minEnergy = float.MaxValue;
 
-                    foreach (GameObject def in adjCards) 
+                    foreach (GameObject def in adjCards)
                     {
                         DisplayCard d = def.GetComponent<DisplayCard>();
 
-                        if(d != null) 
+                        if (d != null)
                         {
-                            if (d.GetCardHealth() < minEnergy) 
+                            if (d.GetCardHealth() < minEnergy)
                             {
                                 minEnergy = d.GetCardHealth();
                                 childWithLowestEnergy = def;
                             }
                         }
                     }
-                    if(childWithLowestEnergy != null) 
+                    if (childWithLowestEnergy != null)
                     {
                         defenseCard = childWithLowestEnergy.gameObject;
                     }
@@ -726,26 +730,26 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
             // randomAiAtcCard.GetComponent<DisplayCard2>().isSelected = true;
             //randomAiAtcCard.GetComponent<DisplayCard2>().outerBorder.color = Color.white;
         }
-        else 
+        else
         {
             Debug.Log("No Cards for Attack");
         }
     }
 
-    IEnumerator RollingDice(float delay) 
-    { 
+    IEnumerator RollingDice(float delay)
+    {
         yield return new WaitForSeconds(delay);
         dice.OnMouseDown();
     }
 
-    IEnumerator DeselectAtcCard(float del) 
+    IEnumerator DeselectAtcCard(float del)
     {
         yield return new WaitForSeconds(del);
         defenseCard.GetComponent<DisplayCard>().OnPtcClk();
         randomAiAtcCard.GetComponent<DisplayCard2>().OnPtClc();
     }
 
-    IEnumerator ChangeAIPhaseToMove(float delayed) 
+    IEnumerator ChangeAIPhaseToMove(float delayed)
     {
         yield return new WaitForSeconds(delayed);
         gmm.ChangePhase(GamePhase.Move);
@@ -758,7 +762,7 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
         //SelectAttackCard();
     }
 
-    IEnumerator Attacking(float del) 
+    IEnumerator Attacking(float del)
     {
         yield return new WaitForSeconds(del);
         SelectAttackCard();
@@ -778,7 +782,7 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
             StartCoroutine(ChangeAIPhaseToAttack(5.0f));
             StartCoroutine(Attacking(6.0f));
         }
-        else if (gameToggleManager.HardToggle.isOn) 
+        else if (gameToggleManager.HardToggle.isOn)
         {
             StartCoroutine(PlaceToBoard(2.0f));
             StartCoroutine(PlaceToBoard(3.0f));
@@ -788,7 +792,7 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
             StartCoroutine(ChangeAIPhaseToAttack(6.0f));
             StartCoroutine(Attacking(6.0f));
             int val = BoardSlot.GetCurrentEnergyP2();
-            if (val > 2) 
+            if (val > 2)
             {
                 StartCoroutine(Attacking(15.0f));
             }
@@ -797,7 +801,7 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
     }
     #endregion Ai
 
-    IEnumerator StartingtheGame(float delay) 
+    IEnumerator StartingtheGame(float delay)
     {
         yield return new WaitForSeconds(delay);
         OnTurnButtonClick();
@@ -806,7 +810,7 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
     {
         ResetTimer();
         Scene cs = SceneManager.GetActiveScene();
-        if (cs.name=="SampleScene")
+        if (cs.name == "SampleScene")
         {
             Debug.Log("Turn button clicked, raising event");
 
@@ -824,139 +828,38 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
         if (cs.name == "AI")
         {
             if (isPlayer1Turn)
-        {
-            gmm.ChangePhase(GamePhase.Draw);
-            turnText.text = "P2 Turn";  //Button 
-            turnCount = 0;
-            turnBar.SetTurnTime(turnCount);
-            turnCount2 = 60;
-            turnBar.SetTurnTime2(turnCount2);
-
-            deckP1.enabled = false;
-            deckP2.enabled = true;
-            boardSlot.AnotherMethod2();
-
-            Scene currentScene = SceneManager.GetActiveScene();
-            if (gmm.currentPhase == GamePhase.Draw)
             {
-                CShufflerP2.ShuffleCards();
-                ResetCanMoveP2();
-                adjacentBSlots.Clear();
-                if (currentScene.name == "AI")
+                gmm.ChangePhase(GamePhase.Draw);
+                turnText.text = "P2 Turn";  //Button 
+                turnCount = 0;
+                turnBar.SetTurnTime(turnCount);
+                turnCount2 = 60;
+                turnBar.SetTurnTime2(turnCount2);
+
+                deckP1.enabled = false;
+                deckP2.enabled = true;
+                boardSlot.AnotherMethod2();
+
+                Scene currentScene = SceneManager.GetActiveScene();
+                if (gmm.currentPhase == GamePhase.Draw)
                 {
-                    StartCoroutine(ChangeAIPhaseToSetup(3.0f));
+                    CShufflerP2.ShuffleCards();
+                    ResetCanMoveP2();
+                    adjacentBSlots.Clear();
+                    if (currentScene.name == "AI")
+                    {
+                        StartCoroutine(ChangeAIPhaseToSetup(3.0f));
+                    }
                 }
-            }
-            foreach (DisplayCard otherCard in allDisplayCards)
-            {
-                if (otherCard.isSelected)
-                {
-                    otherCard.OnPtcClk();
-                }
-            }
-        }
-        else
-        {
-            gmm.ChangePhase(GamePhase.Draw);
-            turnText.text = "P1 Turn";
-            turnCount = 60;
-            turnBar.SetTurnTime(turnCount);
-
-            turnCount2 = 0;
-            turnBar.SetTurnTime2(turnCount2);
-
-            deckP1.enabled = true;
-            deckP2.enabled = false;
-            boardSlot.AnotherMethod();
-            CShufflerP1.ShuffleCards();
-            Scene currentScene = SceneManager.GetActiveScene();
-
-            if (currentScene.name == "SampleScene")
-            {
-                foreach (DisplayCard2 otherCard in allDisplayCardsP2)
+                foreach (DisplayCard otherCard in allDisplayCards)
                 {
                     if (otherCard.isSelected)
                     {
-                        otherCard.OnPtClc();
+                        otherCard.OnPtcClk();
                     }
                 }
             }
-        } }
-
-        // Toggle the turn
-        isPlayer1Turn = !isPlayer1Turn;
-        Debug.Log("PLAYER 1 TURN:" + isPlayer1Turn);
-    }
-
-    private void UpdateTurn(bool newIsPlayer1Turn)
-    {
-        isPlayer1Turn = newIsPlayer1Turn;
-       
-        if (isPlayer1Turn)
-        {
-            gmm.ChangePhase(GamePhase.Draw);
-            turnText.text = "P2 Turn";
-            turnCount = 0;
-            turnBar.SetTurnTime(turnCount);
-
-            turnCount2 = 60;
-            turnBar.SetTurnTime2(turnCount2);
-
-            deckP1.enabled = false;
-            deckP2.enabled = true;
-
-            if (PhotonNetwork.IsMasterClient)
-            {
-                turnButton.SetActive(false);
-            }
-            else 
-            {
-                turnButton.SetActive(true);
-            }
-           
-        }
-        else
-        {
-            gmm.ChangePhase(GamePhase.Draw);
-            turnText.text = "P1 Turn";
-            turnCount2 = 0;
-            turnBar.SetTurnTime2(turnCount2);
-
-            turnCount = 60;
-            turnBar.SetTurnTime(turnCount2);
-
-            if (mainCamera != null)
-            {
-                mainCamera.orthographicSize = originalOrthographicSize;
-                mainCamera.transform.position = originalCamPos;
-            }
-
-            deckP1.enabled = true;
-            deckP2.enabled = false;
-
-            if (PhotonNetwork.IsMasterClient)
-            {
-                turnButton.SetActive(true);
-            }
             else
-            {
-                turnButton.SetActive(false);
-            }
-        }
-    }
-
-    public static bool GetPlayerTurn()
-    {
-        return isPlayer1Turn;
-    }
-
-    private IEnumerator ChangeTurn(float delay)
-    {
-        Scene currentS = SceneManager.GetActiveScene();
-        while (true)
-        {
-            if(currentS.name == "AI") { 
-            if (isPlayer1Turn)
             {
                 gmm.ChangePhase(GamePhase.Draw);
                 turnText.text = "P1 Turn";
@@ -968,34 +871,141 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
 
                 deckP1.enabled = true;
                 deckP2.enabled = false;
-              //  boardSlot.AnotherMethod();
+                boardSlot.AnotherMethod();
+                CShufflerP1.ShuffleCards();
+                Scene currentScene = SceneManager.GetActiveScene();
+
+                if (currentScene.name == "SampleScene")
+                {
+                    foreach (DisplayCard2 otherCard in allDisplayCardsP2)
+                    {
+                        if (otherCard.isSelected)
+                        {
+                            otherCard.OnPtClc();
+                        }
+                    }
+                }
+            }
+        isPlayer1Turn = !isPlayer1Turn;
+        }
+
+        // Toggle the turn
+        Debug.Log("PLAYER 1 TURN:" + isPlayer1Turn);
+    }
+
+    private void UpdateTurn(bool newIsPlayer1Turn)
+    {
+        isPlayer1Turn = !isPlayer1Turn;
+        isPlayer1Turn = newIsPlayer1Turn;
+
+        if (isPlayer1Turn)
+        {
+            gmm.ChangePhase(GamePhase.Draw);
+            turnText.text = "P1 Turn";
+            turnCount = 60;
+            turnBar.SetTurnTime(turnCount);
+
+            turnCount2 = 0;
+            turnBar.SetTurnTime2(turnCount2);
+
+            deckP1.enabled = false;
+            deckP2.enabled = true;
+
+            CShufflerP1.ShuffleCards();
+            if (PhotonNetwork.IsMasterClient)
+            {
+                turnButton.SetActive(true);
             }
             else
             {
-                gmm.ChangePhase(GamePhase.Draw);
-                turnText.text = "P2 Turn";
-                turnCount2 = 60;
-                turnBar.SetTurnTime2(turnCount2);
-              // StartCoroutine(Turnbar2(1.0f));
+                turnButton.SetActive(false);
+            }
 
-                turnCount = 0;
-                turnBar.SetTurnTime(turnCount2);
+        }
+        else
+        {
+            gmm.ChangePhase(GamePhase.Draw);
+            turnText.text = "P2 Turn";
+            turnCount2 = 60;
+            turnBar.SetTurnTime2(turnCount2);
 
-                if (mainCamera != null)
+            turnCount = 0;
+            turnBar.SetTurnTime(turnCount2);
+
+            if (mainCamera != null)
+            {
+                mainCamera.orthographicSize = originalOrthographicSize;
+                mainCamera.transform.position = originalCamPos;
+            }
+
+            deckP1.enabled = true;
+            deckP2.enabled = false;
+            CShufflerP2.ShuffleCards();
+
+            if (PhotonNetwork.IsMasterClient)
+            {
+                turnButton.SetActive(false);
+            }
+            else
+            {
+                turnButton.SetActive(true);
+            }
+        }
+    }
+
+    public static bool GetPlayerTurn()
+    {
+       return isPlayer1Turn;
+    }
+
+    private IEnumerator ChangeTurn(float delay)
+    {
+        Scene currentS = SceneManager.GetActiveScene();
+        while (true)
+        {
+            if (currentS.name == "AI")
+            {
+                if (isPlayer1Turn)
                 {
-                    mainCamera.orthographicSize = originalOrthographicSize;
-                    mainCamera.transform.position = originalCamPos;
-                }
+                    gmm.ChangePhase(GamePhase.Draw);
+                    turnText.text = "P1 Turn";
+                    turnCount = 60;
+                    turnBar.SetTurnTime(turnCount);
 
-                deckP1.enabled = false;
-                deckP2.enabled = true;
-               // boardSlot.AnotherMethod2();
-            } }
-           // Debug.Log("IS PLAYER TURN:"+isPlayer1Turn);
+                    turnCount2 = 0;
+                    turnBar.SetTurnTime2(turnCount2);
+
+                    deckP1.enabled = true;
+                    deckP2.enabled = false;
+                    //  boardSlot.AnotherMethod();
+                }
+                else
+                {
+                    gmm.ChangePhase(GamePhase.Draw);
+                    turnText.text = "P2 Turn";
+                    turnCount2 = 60;
+                    turnBar.SetTurnTime2(turnCount2);
+                    // StartCoroutine(Turnbar2(1.0f));
+
+                    turnCount = 0;
+                    turnBar.SetTurnTime(turnCount2);
+
+                    if (mainCamera != null)
+                    {
+                        mainCamera.orthographicSize = originalOrthographicSize;
+                        mainCamera.transform.position = originalCamPos;
+                    }
+
+                    deckP1.enabled = false;
+                    deckP2.enabled = true;
+                    // boardSlot.AnotherMethod2();
+                }
+            }
+            // Debug.Log("IS PLAYER TURN:"+isPlayer1Turn);
 
             yield return new WaitForSeconds(delay);
-           // isPlayer1Turn = !isPlayer1Turn;
-           OnTurnButtonClick();
+            // isPlayer1Turn = !isPlayer1Turn;
+            OnTurnButtonClick();
         }
     }
 
@@ -1013,7 +1023,7 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
 
     private void ResetTimer()
     {
-        if (turnCoroutine != null) 
+        if (turnCoroutine != null)
         {
             StopCoroutine(turnCoroutine);
         }
@@ -1046,7 +1056,7 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
             if (turnCount >= 0)
             {
                 turnCount--;
-               // Debug.Log("TurnCount:" + turnCount);
+                // Debug.Log("TurnCount:" + turnCount);
                 turnBar.SetTurnTime(turnCount);
             }
         }
@@ -1060,7 +1070,7 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
             if (turnCount2 >= 0)
             {
                 turnCount2--;
-               // Debug.Log("TurnCount2:" + turnCount2);
+                // Debug.Log("TurnCount2:" + turnCount2);
 
                 turnBar.SetTurnTime2(turnCount2);
             }
@@ -1070,16 +1080,16 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
 
     private void TurnStarter(bool isP1)
     {
-        
-        if (isP1)
+
+        if (!isP1)
         {
-         //   turnCount = 30;
-          //  turnBar.SetTurnTime(turnCount);
-          
+            //   turnCount = 30;
+            //  turnBar.SetTurnTime(turnCount);
+
             StartCoroutine(Turnbar(1.0f));
             StartCoroutine(Turnbar2(1.0f));
         }
-        
+
     }
 
     public void OnEvent(EventData photonEvent)

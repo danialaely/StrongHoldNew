@@ -114,14 +114,15 @@ public class CCardShuffler : MonoBehaviour
 
     public void ShuffleCards()
     {
+        Scene currentScene = SceneManager.GetActiveScene();
         if (shuffleButton.gameObject.name == "Shuffle" && gm.currentPhase == GamePhase.Draw)
         {
             boardSlot.AnotherMethod();
         }
 
-        if (shuffleButton.gameObject.name == "Shuffle2" && gm.currentPhase == GamePhase.Draw)
+        if (shuffleButton.gameObject.name == "Shuffle2" && gm.currentPhase == GamePhase.Draw && currentScene.name == "SampleScene")
         {
-         //   boardSlot.AnotherMethod2();
+            boardSlot.AnotherMethod2();
         }
 
 
