@@ -54,7 +54,6 @@ public class BoardSlot : MonoBehaviourPunCallbacks, IDropHandler
     public static List<Transform> cardsPlacedInPreviousTurn = new List<Transform>(); //Keeping track of cards placed in previous turns
     public static List<Transform> cardsPlacedInPreviousTurnP2 = new List<Transform>(); //FOR P2 Keeping track of cards placed in previous turns
 
-
     private void Start()
     {
      //   UpdateMoveListP2();
@@ -221,7 +220,7 @@ public class BoardSlot : MonoBehaviourPunCallbacks, IDropHandler
     {
         DisplayCard card = eventData.pointerDrag.GetComponent<DisplayCard>();
         DisplayCard2 cardd = eventData.pointerDrag.GetComponent<DisplayCard2>();
-        Debug.Log("THIS MUST BE WORKING ON DROP");
+        
         //  if (card.transform.parent.name == "Hand"){ }
         bool isP1Turn = ButtonTurn.GetPlayerTurn();
 
@@ -328,6 +327,7 @@ public class BoardSlot : MonoBehaviourPunCallbacks, IDropHandler
                             card.transform.SetParent(transform);
                             card.transform.localPosition = Vector3.zero;
                             card.GetComponent<CanvasGroup>().blocksRaycasts = true;
+
                             GetPlacementSound();
                             //GetComponent<Image>().color = highlightColor;
                             //  HighlightValidSlots();
@@ -579,6 +579,7 @@ public class BoardSlot : MonoBehaviourPunCallbacks, IDropHandler
 
                                 Image carddBackImage = cardd.transform.Find("Back").GetComponent<Image>();
                                 carddBackImage.enabled = false;
+                                
                                 GetPlacementSound();
                                 //  Debug.Log("Child:"+ transform.parent.GetChild(rowIndex - 1).GetChild(0));
                             }

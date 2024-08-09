@@ -9,6 +9,8 @@ TagManager:
   - Player2
   - Player1
   - aaaa
+  - CBack1
+  - CBack2
   layers:
   - Default
   - TransparentFX

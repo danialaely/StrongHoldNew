@@ -6,17 +6,21 @@ using UnityEngine;
 using UnityEngine.UI;
 using Photon.Pun;
 using UnityEngine.SceneManagement;
+using ExitGames.Client.Photon;
+using Photon.Realtime;
+using System;
+using System.Reflection;
 
-public class CardShuffler : MonoBehaviour
+public class CardShuffler : MonoBehaviourPunCallbacks
 {
     public List<DisplayCard> displayCards; // List of all display cards
     public Button shuffleButton; // Reference to the shuffle button
     public Animator cardAnimator; // Reference to the Animator component on the object you want to animate
 
-   
+
     public GameObject deck;
     public GameObject hand;
-    
+
     public BoardSlot boardSlot;
     public DisplayCard dc;
 
@@ -28,35 +32,43 @@ public class CardShuffler : MonoBehaviour
     public AudioClip swordClip;
 
     public Zoom zm;
+    // private const byte DisplayIdEventCode = 4;
 
     private void Start()
     {
-       // boardSlot = FindAnyObjectByType<BoardSlot>();
-       //Scene currentS = SceneManager.GetActiveScene();
-   
-        foreach (var card in displayCards)
+        // boardSlot = FindAnyObjectByType<BoardSlot>();
+        Scene currentS = SceneManager.GetActiveScene();
+
+        if (PhotonNetwork.IsMasterClient)
         {
-            onStartShuffle(card);
+            foreach (var card in displayCards)
+            {
+                onStartShuffle(card);
+            }
         }
 
         Scene currenS = SceneManager.GetActiveScene();
         // Add a click listener to the shuffle button
-        if (currenS.name=="AI") 
+        if (currenS.name == "AI")
         {
-           ShuffleCards();
+            ShuffleCards();
         }
-       // shuffleButton.onClick.AddListener(ShuffleCards);
+        // shuffleButton.onClick.AddListener(ShuffleCards);
     }
 
-    private void onStartShuffle(DisplayCard c) 
+    private void onStartShuffle(DisplayCard c)
     {
+        Scene cs = SceneManager.GetActiveScene();
+
+
+
         int randomDetail;
         int detailCount;
 
         // Generate a random detail until it doesn't exceed the limit of 2
         do
         {
-            randomDetail = Random.Range(0, 40);
+            randomDetail = UnityEngine.Random.Range(0, 40); //HERE
             usedDetailsCount.TryGetValue(randomDetail, out detailCount);
         } while (detailCount >= 2);
 
@@ -64,10 +76,11 @@ public class CardShuffler : MonoBehaviour
         usedDetailsCount[randomDetail] = detailCount + 1;
 
         // Set the random detail ID and update the card information
-        if (c.transform.parent.name == "Deck"  || c.transform.parent.name == "Deck2")
+        if (c.transform.parent.name == "Deck" || c.transform.parent.name == "Deck2")
         {
             c.displayId = randomDetail;
             c.UpdateCardInformation();
+
         }
 
 
@@ -75,14 +88,14 @@ public class CardShuffler : MonoBehaviour
 
     public void ShuffleCards()
     {
-        if (shuffleButton.gameObject.name == "Shuffle" && gm.currentPhase == GamePhase.Draw) 
+        if (shuffleButton.gameObject.name == "Shuffle" && gm.currentPhase == GamePhase.Draw)
         {
-         //boardSlot.AnotherMethod();
+            boardSlot.AnotherMethod();
         }
 
-        if (shuffleButton.gameObject.name == "Shuffle2" && gm.currentPhase == GamePhase.Draw) 
+        if (shuffleButton.gameObject.name == "Shuffle2" && gm.currentPhase == GamePhase.Draw)
         {
-         boardSlot.AnotherMethod2();
+            boardSlot.AnotherMethod2();
         }
 
         StartCoroutine(CardsDelay(2.1f));
@@ -90,13 +103,13 @@ public class CardShuffler : MonoBehaviour
         // Play the shuffle animation
         int handchildCount = hand.transform.childCount;
 
-        if (handchildCount==0 && gm.currentPhase == GamePhase.Draw) 
+        if (handchildCount == 0 && gm.currentPhase == GamePhase.Draw)
         {
-        cardAnimator.SetTrigger("ShuffleTrigger");
-          zm.DeckSound();
-        StartCoroutine(BackToDefault(3));
+            cardAnimator.SetTrigger("ShuffleTrigger");
+            zm.DeckSound();
+            StartCoroutine(BackToDefault(3));
         }
-        if (handchildCount == 7 && gm.currentPhase == GamePhase.Draw) 
+        if (handchildCount == 7 && gm.currentPhase == GamePhase.Draw)
         {
             cardAnimator.SetTrigger("ShuffleTrigger2");
             zm.DeckSound();
@@ -141,9 +154,9 @@ public class CardShuffler : MonoBehaviour
         // Reset the used detail count dictionary
         usedDetailsCount.Clear();
 
-        foreach (var card in displayCards)
+        foreach (var cards in displayCards)
         {
-            ShuffleCard(card);
+            ShuffleCard(cards);
         }
     }
 
@@ -156,7 +169,7 @@ public class CardShuffler : MonoBehaviour
         // Generate a random detail until it doesn't exceed the limit of 2
         do
         {
-            randomDetail = Random.Range(0, 40);
+            randomDetail = UnityEngine.Random.Range(0, 40);
             usedDetailsCount.TryGetValue(randomDetail, out detailCount);
         } while (detailCount >= 2);
 
@@ -164,10 +177,20 @@ public class CardShuffler : MonoBehaviour
         usedDetailsCount[randomDetail] = detailCount + 1;
 
         // Set the random detail ID and update the card information
-        if (card.transform.parent.name == "Deck" || card.transform.parent.name == "Deck2") 
+        if (card.transform.parent.name == "Deck" || card.transform.parent.name == "Deck2")
         {
-        card.displayId = randomDetail;
-        card.UpdateCardInformation();
+            card.displayId = randomDetail;
+            card.UpdateCardInformation();
+
+            // If the current client is the Master, send the displayId to the Client
+            if (PhotonNetwork.IsMasterClient)
+            {
+                object[] content = new object[] { card.displayId, card.GetComponent<PhotonView>().ViewID };
+                RaiseEventOptions options = new RaiseEventOptions { Receivers = ReceiverGroup.All };
+                PhotonNetwork.RaiseEvent(4, content, options, SendOptions.SendReliable);
+
+                card.UpdateClientInfo(card.displayId);
+            }
         }
 
 
@@ -179,13 +202,13 @@ public class CardShuffler : MonoBehaviour
         cardAnimator.SetTrigger("BackTrigger");
     }
 
-    public void AttackSound() 
+    public void AttackSound()
     {
         src.clip = swordClip;
         src.Play();
     }
 
-    private IEnumerator CardsDelay(float delay) 
+    private IEnumerator CardsDelay(float delay)
     {
         int childCount = deck.transform.childCount;
         int handchildCount = hand.transform.childCount;
@@ -205,16 +228,17 @@ public class CardShuffler : MonoBehaviour
             Transform seventhLastCard = deck.transform.GetChild(childCount - 7); //7th card
             Transform eightLastCard = deck.transform.GetChild(childCount - 8);   //8th card
 
-            if (handchildCount == 8 && gm.currentPhase == GamePhase.Draw) 
+
+            if (handchildCount == 8 && gm.currentPhase == GamePhase.Draw)
             {
                 Debug.Log("Hand Already Fill");
             }
-            if (handchildCount == 7 && gm.currentPhase == GamePhase.Draw) 
+            if (handchildCount == 7 && gm.currentPhase == GamePhase.Draw)
             {
                 lastCard.SetParent(hand.transform);
                 //handlist.add(lastcard);
             }
-            if(handchildCount == 6 && gm.currentPhase == GamePhase.Draw) 
+            if (handchildCount == 6 && gm.currentPhase == GamePhase.Draw)
             {
                 lastCard.SetParent(hand.transform);
                 secondLastCard.SetParent(hand.transform);
@@ -261,18 +285,19 @@ public class CardShuffler : MonoBehaviour
                 sixthLastCard.SetParent(hand.transform);
                 seventhLastCard.SetParent(hand.transform);
             }
-            if (handchildCount == 0 && gm.currentPhase == GamePhase.Draw) 
+            if (handchildCount == 0 && gm.currentPhase == GamePhase.Draw)
             {
-            // Change the parent of the last card to the Hand
-            lastCard.SetParent(hand.transform);
-            secondLastCard.SetParent(hand.transform);
-            thirdLastCard.SetParent(hand.transform);
-            fourthLastCard.SetParent(hand.transform);
-            fifthLastCard.SetParent(hand.transform);
-            sixthLastCard.SetParent(hand.transform);
-            seventhLastCard.SetParent(hand.transform);
-            eightLastCard.SetParent(hand.transform);
+                // Change the parent of the last card to the Hand
+                lastCard.SetParent(hand.transform);
+                secondLastCard.SetParent(hand.transform);
+                thirdLastCard.SetParent(hand.transform);
+                fourthLastCard.SetParent(hand.transform);
+                fifthLastCard.SetParent(hand.transform);
+                sixthLastCard.SetParent(hand.transform);
+                seventhLastCard.SetParent(hand.transform);
+                eightLastCard.SetParent(hand.transform);
             }
+
         }
     }
 }

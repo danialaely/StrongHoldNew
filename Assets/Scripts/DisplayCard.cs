@@ -8,12 +8,15 @@ using UnityEngine.UIElements;
 using Image = UnityEngine.UI.Image;
 using Photon.Pun;
 using UnityEngine.SceneManagement;
+using Photon.Realtime;
+using ExitGames.Client.Photon;
 //using static UnityEditor.Experimental.GraphView.GraphView;
 
-public class DisplayCard : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler
+public class DisplayCard : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler, IPointerEnterHandler, IPointerExitHandler, IOnEventCallback
 {
     public List<Card> display = new List<Card>();
     public int displayId;
+    public int cardid;
 
     public TMP_Text nameText;
     public TMP_Text attackText;
@@ -66,7 +69,7 @@ public class DisplayCard : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragHa
     GameObject[] player1;
 
     public List<Transform> MoveBoardSlots = new List<Transform>();
-   
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -89,14 +92,17 @@ public class DisplayCard : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragHa
         Discard = false;
         canMove = true;
 
-        
+        cardid = this.GetComponent<PhotonView>().ViewID;
+        PhotonNetwork.AddCallbackTarget(this);
     }
+
+   
     public List<Transform> AdjacentBSlotsAvailable() 
     {
         return MoveBoardSlots;
     }
-
-        public IEnumerator CanMoveNow(float delay) 
+    
+    public IEnumerator CanMoveNow(float delay) 
     {
         yield return new WaitForSeconds(delay);
         canMove = true;
@@ -104,8 +110,11 @@ public class DisplayCard : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragHa
 
     public void UpdateCardInformation()
     {
+        Scene cs = SceneManager.GetActiveScene();
+        if (cs.name == "AI") 
+        {
         Card card = display.Find(c => c.cardId == displayId);
-
+        
         if (card != null)
         {
             nameText.text = card.cardName;
@@ -124,7 +133,49 @@ public class DisplayCard : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragHa
           //  defenseText.text = " ";
             crdImage.sprite = null;
         }
+        }
+        
+    }
 
+    public void OnEvent(EventData photonEvent)
+    {
+        if (photonEvent.Code == 4)
+        {
+            object[] data = (object[])photonEvent.CustomData;
+            int receivedDisplayId = (int)data[0];
+            int receivedCardId = (int)data[1];
+
+            if (this.cardid == receivedCardId)
+            {
+                this.displayId = receivedDisplayId;
+                UpdateClientInfo(receivedDisplayId);
+            }
+        }
+    }
+
+    public void UpdateClientInfo(int dispID) 
+    {
+        displayId = dispID;
+        Card card = display.Find(c => c.cardId == displayId);
+
+        if (card != null)
+        {
+            nameText.text = card.cardName;
+            attackText.text = card.cardAttack.ToString();
+            healthText.text = card.cardHealth.ToString();
+            energyText.text = card.cardEnergy.ToString();
+            //   defenseText.text = card.cardDefence.ToString();
+            crdImage.sprite = card.cardImage;
+        }
+        else
+        {
+            nameText.text = "Card Not Found";
+            attackText.text = " ";
+            healthText.text = " ";
+            energyText.text = " ";
+            //  defenseText.text = " ";
+            crdImage.sprite = null;
+        }
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -547,4 +598,6 @@ public class DisplayCard : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragHa
         yield return new WaitForSeconds(delay);
         PopUpCardP1.SetActive(false);
     }
+
+    
 }
