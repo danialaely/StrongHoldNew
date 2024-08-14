@@ -5,6 +5,7 @@ using TMPro;
 using Unity.Burst.CompilerServices;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class BoardSlot : MonoBehaviourPunCallbacks, IDropHandler
@@ -328,6 +329,7 @@ public class BoardSlot : MonoBehaviourPunCallbacks, IDropHandler
                             card.transform.localPosition = Vector3.zero;
                             card.GetComponent<CanvasGroup>().blocksRaycasts = true;
 
+                            card.photonView.RPC("DisableCardBack2RPC", RpcTarget.All);
                             GetPlacementSound();
                             //GetComponent<Image>().color = highlightColor;
                             //  HighlightValidSlots();
@@ -577,9 +579,16 @@ public class BoardSlot : MonoBehaviourPunCallbacks, IDropHandler
                                 cardd.transform.localPosition = Vector3.zero;
                                 cardd.GetComponent<CanvasGroup>().blocksRaycasts = true;
 
-                                Image carddBackImage = cardd.transform.Find("Back").GetComponent<Image>();
-                                carddBackImage.enabled = false;
-                                
+                                Scene cs = SceneManager.GetActiveScene();
+                                if (cs.name == "AI") 
+                                {
+                                    Image carddBackImage = cardd.transform.Find("Back").GetComponent<Image>();
+                                    carddBackImage.enabled = false;
+                                }
+
+                                // Call the RPC to disable the card back image for all players
+                                cardd.photonView.RPC("DisableCardBackRPC", RpcTarget.All);
+
                                 GetPlacementSound();
                                 //  Debug.Log("Child:"+ transform.parent.GetChild(rowIndex - 1).GetChild(0));
                             }

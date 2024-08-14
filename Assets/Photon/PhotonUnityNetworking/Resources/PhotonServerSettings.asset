@@ -43,6 +43,8 @@ MonoBehaviour:
   - ActivateObjects
   - DecativateObjects
   - SyncTurn
+  - DisableCardBackRPC
+  - DisableCardBack2RPC
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

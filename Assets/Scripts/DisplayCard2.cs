@@ -7,12 +7,16 @@ using UnityEngine.UI;
 using UnityEngine.UIElements;
 using Image = UnityEngine.UI.Image;
 using Photon.Pun;
+using UnityEngine.SceneManagement;
+using Photon.Realtime;
+using ExitGames.Client.Photon;
 //using static UnityEditor.Experimental.GraphView.GraphView;
 
-public class DisplayCard2 : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
+public class DisplayCard2 : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler, IOnEventCallback
 {
     public List<Card> display = new List<Card>();
     public int displayId;
+    public int carddid;
 
     public TMP_Text nameText;
     public TMP_Text attackText;
@@ -87,6 +91,9 @@ public class DisplayCard2 : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragH
 
         DisCard = false;
         canMove = true;
+
+        carddid = this.GetComponent<PhotonView>().ViewID;
+        PhotonNetwork.AddCallbackTarget(this);
     }
 
     public List<Transform> AdjacentBSlotsAvailable()
@@ -102,6 +109,52 @@ public class DisplayCard2 : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragH
 
     public void UpdateCardInformation()
     {
+        Scene cs = SceneManager.GetActiveScene();
+        if (cs.name == "AI") 
+        {
+            Card cardd = display.Find(c => c.cardId == displayId);
+
+            if (cardd != null)
+            {
+                nameText.text = cardd.cardName;
+                attackText.text = cardd.cardAttack.ToString();
+                healthText.text = cardd.cardHealth.ToString();
+                energyText.text = cardd.cardEnergy.ToString();
+            //  defenseText.text = cardd.cardDefence.ToString();
+                crdImage.sprite = cardd.cardImage;
+            }
+            else
+            {
+                nameText.text = "Card Not Found";
+                attackText.text = " ";
+                healthText.text = " ";
+                energyText.text = " ";
+             // defenseText.text = " ";
+                crdImage.sprite = null;
+            }
+        }
+
+    }
+
+    public void OnEvent(EventData photonEvent)
+    {
+        if (photonEvent.Code == 5) 
+        {
+            object[] data = (object[])photonEvent.CustomData;
+            int receivedDisplayId = (int)data[0];
+            int receivedCardId = (int)data[1];
+
+            if (this.carddid == receivedCardId)
+            {
+                this.displayId = receivedDisplayId;
+                UpdateClientInfo(receivedDisplayId);
+            }
+        }
+    }
+
+    public void UpdateClientInfo(int dpID) 
+    {
+        displayId = dpID;
         Card cardd = display.Find(c => c.cardId == displayId);
 
         if (cardd != null)
@@ -110,7 +163,7 @@ public class DisplayCard2 : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragH
             attackText.text = cardd.cardAttack.ToString();
             healthText.text = cardd.cardHealth.ToString();
             energyText.text = cardd.cardEnergy.ToString();
-          //  defenseText.text = cardd.cardDefence.ToString();
+            //  defenseText.text = cardd.cardDefence.ToString();
             crdImage.sprite = cardd.cardImage;
         }
         else
@@ -119,10 +172,19 @@ public class DisplayCard2 : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragH
             attackText.text = " ";
             healthText.text = " ";
             energyText.text = " ";
-          //  defenseText.text = " ";
+            // defenseText.text = " ";
             crdImage.sprite = null;
         }
+    }
 
+    [PunRPC]
+    public void DisableCardBackRPC()
+    {
+        Image carddBackImage = transform.Find("Back").GetComponent<Image>();
+        if (carddBackImage != null)
+        {
+            carddBackImage.enabled = false;
+        }
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -546,4 +608,5 @@ public class DisplayCard2 : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragH
        // PopUpCardP2.SetActive(false);
     }
 
+    
 }

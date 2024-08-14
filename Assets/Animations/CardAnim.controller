@@ -61,7 +61,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 1
-    m_ConditionEvent: ShuffleTrigger
+    m_ConditionEvent: ShuffleTrigger9
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 5669559555807871534}
@@ -111,7 +111,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 1
-    m_ConditionEvent: ShuffleTriger2
+    m_ConditionEvent: ShuffleTrigger2
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 131394099385370790}
@@ -236,7 +236,7 @@ AnimatorController:
   m_Name: CardAnim
   serializedVersion: 5
   m_AnimatorParameters:
-  - m_Name: ShuffleTrigger
+  - m_Name: ShuffleTrigger9
     m_Type: 9
     m_DefaultFloat: 0
     m_DefaultInt: 0
@@ -248,7 +248,7 @@ AnimatorController:
     m_DefaultInt: 0
     m_DefaultBool: 0
     m_Controller: {fileID: 0}
-  - m_Name: ShuffleTriger2
+  - m_Name: ShuffleTrigger2
     m_Type: 9
     m_DefaultFloat: 0
     m_DefaultInt: 0

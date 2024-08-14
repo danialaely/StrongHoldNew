@@ -599,5 +599,15 @@ public class DisplayCard : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragHa
         PopUpCardP1.SetActive(false);
     }
 
-    
+    [PunRPC]
+    public void DisableCardBack2RPC()
+    {
+        Image cardBackImage = transform.Find("Back").GetComponent<Image>();
+        if (cardBackImage != null)
+        {
+            cardBackImage.enabled = false;
+        }
+    }
+
+
 }

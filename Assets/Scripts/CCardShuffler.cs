@@ -7,6 +7,8 @@ using UnityEngine.UI;
 using Photon.Pun;
 using UnityEngine.SceneManagement;
 using Photon.Pun.Demo.PunBasics;
+using ExitGames.Client.Photon;
+using Photon.Realtime;
 
 public class CCardShuffler : MonoBehaviour
 {
@@ -45,12 +47,12 @@ public class CCardShuffler : MonoBehaviour
 
         //   Debug.Log("Available Slots:" + boardSlot.Available().Count);
 
-        foreach (var card in displayCards)
-        {
-            onStartShuffle(card);
-        }
 
         // Add a click listener to the shuffle button
+            foreach (var card in displayCards)
+            {
+                onStartShuffle(card);
+            }
         if (PhotonNetwork.IsMasterClient) 
         {
         }
@@ -115,69 +117,22 @@ public class CCardShuffler : MonoBehaviour
     public void ShuffleCards()
     {
         Scene currentScene = SceneManager.GetActiveScene();
-        if (shuffleButton.gameObject.name == "Shuffle" && gm.currentPhase == GamePhase.Draw)
+        if (gm.currentPhase == GamePhase.Draw) 
+        {
+        if (shuffleButton.gameObject.name == "Shuffle")
         {
             boardSlot.AnotherMethod();
         }
 
-        if (shuffleButton.gameObject.name == "Shuffle2" && gm.currentPhase == GamePhase.Draw && currentScene.name == "SampleScene")
+        if (shuffleButton.gameObject.name == "Shuffle2" && currentScene.name == "SampleScene")
         {
             boardSlot.AnotherMethod2();
+        }
         }
 
 
         StartCoroutine(CardsDelay(2.1f));
-
-        // Play the shuffle animation
-        int handchildCount = hand.transform.childCount;
-        if (handchildCount==0 && gm.currentPhase == GamePhase.Draw) 
-        { 
-        cardAnimator.SetTrigger("ShuffleTrigger");
-            zm.DeckSound();
-        StartCoroutine(BackToDefault(3));
-        }
-        if (handchildCount == 7 && gm.currentPhase == GamePhase.Draw)
-        {
-            cardAnimator.SetTrigger("ShuffleTriger2");
-            zm.DeckSound();
-            StartCoroutine(BackToDefault(2));
-        }
-        if (handchildCount == 6 && gm.currentPhase == GamePhase.Draw)
-        {
-            cardAnimator.SetTrigger("ShuffleTrigger3");
-            zm.DeckSound();
-            StartCoroutine(BackToDefault(2));
-        }
-        if (handchildCount == 5 && gm.currentPhase == GamePhase.Draw)
-        {
-            cardAnimator.SetTrigger("ShuffleTrigger4");
-            zm.DeckSound();
-            StartCoroutine(BackToDefault(2));
-        }
-        if (handchildCount == 4 && gm.currentPhase == GamePhase.Draw)
-        {
-            cardAnimator.SetTrigger("ShuffleTrigger5");
-            zm.DeckSound();
-            StartCoroutine(BackToDefault(2));
-        }
-        if (handchildCount == 3 && gm.currentPhase == GamePhase.Draw)
-        {
-            cardAnimator.SetTrigger("ShuffleTrigger6");
-            zm.DeckSound();
-            StartCoroutine(BackToDefault(2));
-        }
-        if (handchildCount == 2 && gm.currentPhase == GamePhase.Draw)
-        {
-            cardAnimator.SetTrigger("ShuffleTrigger7");
-            zm.DeckSound();
-            StartCoroutine(BackToDefault(2));
-        }
-        if (handchildCount == 1 && gm.currentPhase == GamePhase.Draw)
-        {
-            cardAnimator.SetTrigger("ShuffleTrigger8");
-            zm.DeckSound();
-            StartCoroutine(BackToDefault(2));
-        }
+        TriggerShuffleAnimation(hand.transform.childCount);
 
         // Reset the used detail count dictionary
         usedDetailsCount.Clear();
@@ -187,6 +142,7 @@ public class CCardShuffler : MonoBehaviour
             ShuffleCard(card);
         }
     }
+
 
     private void ShuffleCard(DisplayCard2 card)
     {
@@ -209,9 +165,31 @@ public class CCardShuffler : MonoBehaviour
         {
             card.displayId = randomDetail;
             card.UpdateCardInformation();
+
+            // If the current client is the Master, send the displayId to the Client
+            if (PhotonNetwork.IsMasterClient)
+            {
+                object[] content = new object[] { card.displayId, card.GetComponent<PhotonView>().ViewID };
+                RaiseEventOptions options = new RaiseEventOptions { Receivers = ReceiverGroup.All };
+                PhotonNetwork.RaiseEvent(5, content, options, SendOptions.SendReliable);
+
+                card.UpdateClientInfo(card.displayId);
+            }
         }
 
 
+    }
+
+    private void TriggerShuffleAnimation(int handchildCount)
+    {
+        if (gm.currentPhase == GamePhase.Draw)
+        {
+            string triggerName = "ShuffleTrigger" + (1 + (8 - handchildCount)).ToString();
+            cardAnimator.SetTrigger(triggerName);
+            Debug.Log(triggerName);
+            zm.DeckSound();
+            StartCoroutine(BackToDefault(2.0f + (handchildCount == 0 ? 1.0f : 0f)));
+        }
     }
 
     IEnumerator BackToDefault(float delay)
@@ -228,99 +206,17 @@ public class CCardShuffler : MonoBehaviour
 
     private IEnumerator CardsDelay(float delay)
     {
-        int childCount = deck.transform.childCount;
-        int handchildCount = hand.transform.childCount;
+        //int childCount = deck.transform.childCount;
+        //int handchildCount = hand.transform.childCount;
         yield return new WaitForSeconds(delay);
 
-        if (childCount > 0)
+        if (deck.transform.childCount > 0 && gm.currentPhase == GamePhase.Draw)
         {
-            // if(handchildCount == 8){ Debug.log("Hand Already full"); }  if(handchildCount == 7){ lastcard }   if(handchildCount == 6){ lastcard secondLastCard} ....
-
-            // Find the last child (last card) under the Deck
-            Transform lastCard = deck.transform.GetChild(childCount - 1);        //deck's upper card
-            Transform secondLastCard = deck.transform.GetChild(childCount - 2);    //2nd card
-            Transform thirdLastCard = deck.transform.GetChild(childCount - 3);   //3rd card
-            Transform fourthLastCard = deck.transform.GetChild(childCount - 4);  //4th card
-            Transform fifthLastCard = deck.transform.GetChild(childCount - 5);   //5th card
-            Transform sixthLastCard = deck.transform.GetChild(childCount - 6);   //6th card
-            Transform seventhLastCard = deck.transform.GetChild(childCount - 7); //7th card
-            Transform eightLastCard = deck.transform.GetChild(childCount - 8);   //8th card
-
-            if (handchildCount == 8 && gm.currentPhase == GamePhase.Draw)
+            int cardsToMove = 8 - hand.transform.childCount;
+            for (int i = 0; i < cardsToMove; i++)
             {
-                Debug.Log("Hand Already Fill");
-            }
-            if (handchildCount == 7 && gm.currentPhase == GamePhase.Draw)
-            {
-                lastCard.SetParent(hand.transform);
-               
-            }
-            if (handchildCount == 6 && gm.currentPhase == GamePhase.Draw)
-            {
-                lastCard.SetParent(hand.transform); 
-                secondLastCard.SetParent(hand.transform);  
-            }
-            if (handchildCount == 5 && gm.currentPhase == GamePhase.Draw)
-            {
-                lastCard.SetParent(hand.transform);
-                secondLastCard.SetParent(hand.transform);
-                thirdLastCard.SetParent(hand.transform);
-
-               
-            }
-            if (handchildCount == 4 && gm.currentPhase == GamePhase.Draw)
-            {
-                lastCard.SetParent(hand.transform);
-                secondLastCard.SetParent(hand.transform);
-                thirdLastCard.SetParent(hand.transform);
-                fourthLastCard.SetParent(hand.transform);
-
-               
-            }
-            if (handchildCount == 3 && gm.currentPhase == GamePhase.Draw)
-            {
-                lastCard.SetParent(hand.transform);
-                secondLastCard.SetParent(hand.transform);
-                thirdLastCard.SetParent(hand.transform);
-                fourthLastCard.SetParent(hand.transform);
-                fifthLastCard.SetParent(hand.transform);
-
-              
-            }
-            if (handchildCount == 2 && gm.currentPhase == GamePhase.Draw)
-            {
-                lastCard.SetParent(hand.transform);
-                secondLastCard.SetParent(hand.transform);
-                thirdLastCard.SetParent(hand.transform);
-                fourthLastCard.SetParent(hand.transform);
-                fifthLastCard.SetParent(hand.transform);
-                sixthLastCard.SetParent(hand.transform);
-
-              
-            }
-            if (handchildCount == 1 && gm.currentPhase == GamePhase.Draw)
-            {
-                lastCard.SetParent(hand.transform);
-                secondLastCard.SetParent(hand.transform);
-                thirdLastCard.SetParent(hand.transform);
-                fourthLastCard.SetParent(hand.transform);
-                fifthLastCard.SetParent(hand.transform);
-                sixthLastCard.SetParent(hand.transform);
-                seventhLastCard.SetParent(hand.transform);
-
-            
-            }
-            if (handchildCount == 0 && gm.currentPhase == GamePhase.Draw)
-            {
-                // Change the parent of the last card to the Hand
-                lastCard.SetParent(hand.transform);
-                secondLastCard.SetParent(hand.transform);
-                thirdLastCard.SetParent(hand.transform);
-                fourthLastCard.SetParent(hand.transform);
-                fifthLastCard.SetParent(hand.transform);
-                sixthLastCard.SetParent(hand.transform);
-                seventhLastCard.SetParent(hand.transform);
-                eightLastCard.SetParent(hand.transform);
+                Transform cardToMove = deck.transform.GetChild(deck.transform.childCount - 1);
+                cardToMove.SetParent(hand.transform);
             }
         }
     }
