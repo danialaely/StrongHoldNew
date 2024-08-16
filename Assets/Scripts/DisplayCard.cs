@@ -264,21 +264,20 @@ public class DisplayCard : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragHa
 
     public void OnDrag(PointerEventData eventData)
     {
-        int dragging = BoardSlot.GetCurrentEnergy();
-        int dragging2 = BoardSlot.GetCurrentEnergyP2();
-        bool isP1Turn = ButtonTurn.GetPlayerTurn();
-        if (transform.parent!=null && transform.parent.name == "Hand"  && isP1Turn && gm.currentPhase == GamePhase.Play) 
+        if (transform.parent != null && transform.parent.name == "Hand" && ButtonTurn.GetPlayerTurn() && gm.currentPhase == GamePhase.Play)
         {
-           if (dragging >= 0) 
-           {
-                 //transform.position = Input.mousePosition;
-
-                 RectTransformUtility.ScreenPointToLocalPointInRectangle(transform.parent.GetComponent<RectTransform>(),Input.mousePosition, Camera.main,out Vector2 localPos);
-                 transform.localPosition = localPos;
-
-           }
+            int currentEnergy = BoardSlot.GetCurrentEnergy();
+            if (currentEnergy >= 0)
+            {
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    transform.parent.GetComponent<RectTransform>(),
+                    Input.mousePosition,
+                    Camera.main,
+                    out Vector2 localPos
+                );
+                transform.localPosition = localPos;
+            }
         }
-
     }
 
     public void OnEndDrag(PointerEventData eventData)

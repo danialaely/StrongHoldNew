@@ -221,499 +221,127 @@ public class BoardSlot : MonoBehaviourPunCallbacks, IDropHandler
     {
         DisplayCard card = eventData.pointerDrag.GetComponent<DisplayCard>();
         DisplayCard2 cardd = eventData.pointerDrag.GetComponent<DisplayCard2>();
-        
-        //  if (card.transform.parent.name == "Hand"){ }
         bool isP1Turn = ButtonTurn.GetPlayerTurn();
 
-        // originalColor = GetComponent<Image>().color;
-
-        if (card != null && transform.childCount == 0)  //(2): CARD PLACEMENT PHASE
+        if (card != null && transform.childCount == 0)
         {
-            int cardEnergy = card.GetCardEnergy();
+            HandleCardDrop(card, isP1Turn);
+        }
+        else if (cardd != null && (cardd.gameObject.tag == "Player2" || !PhotonNetwork.IsMasterClient) && transform.childCount == 0)
+        {
+            HandleCardDropP2(cardd, isP1Turn);
+        }
+        else
+        {
+            Debug.LogError("Invalid card detected.");
+        }
+    }
 
-            if (int.TryParse(energyText.text, out currentEnergy))
+    private void HandleCardDrop(DisplayCard card, bool isP1Turn)
+    {
+        int cardEnergy = card.GetCardEnergy();
+        if (int.TryParse(energyText.text, out currentEnergy) && currentEnergy >= cardEnergy && isP1Turn)
+        {
+            if (card.transform.parent.name == "Hand" && gmmm.currentPhase == GamePhase.Play && PreviouslyPlacedAvailable().Contains(transform))
             {
-                if (currentEnergy >= cardEnergy && isP1Turn)
-                {
-                    int rowIndex = transform.GetSiblingIndex();
-                    //int maxRowIndex = 97;
-
-                    //  int columnIndex = transform.parent.GetSiblingIndex();
-                    if (card.transform.parent.name == "Hand" && gmmm.currentPhase == GamePhase.Draw)
-                    {
-                        gmmm.ErrorSound();
-                    }
-
-                    if (card.transform.parent.name == "Hand" && gmmm.currentPhase == GamePhase.Play)
-                    {  //(rowIndex >= 84 && rowIndex < maxRowIndex) ||
-                        if (PreviouslyPlacedAvailable().Contains(transform))
-                        {                                                                 // card.transform.parent.name == "Hand"
-                            currentEnergy -= cardEnergy;
-                            energyText.text = currentEnergy.ToString();
-                            healthBar.SetHealth(currentEnergy); //
-                                                                //HERE I HAVE TO DESTROY THE COIN IMAGES
-                            if (currentEnergy == 7) 
-                            {
-                                coinP1img8.SetActive(false);
-                            }
-                            if (currentEnergy == 6)
-                            {
-                                coinP1img8.SetActive(false);
-                                coinP1img7.SetActive(false);
-                            }
-                            if (currentEnergy == 5)
-                            {
-                                coinP1img8.SetActive(false);
-                                coinP1img7.SetActive(false);
-                                coinP1img6.SetActive(false);
-                            }
-                            if (currentEnergy == 4)
-                            {
-                                coinP1img8.SetActive(false);
-                                coinP1img7.SetActive(false);
-                                coinP1img6.SetActive(false);
-                                coinP1img5.SetActive(false);
-                            }
-                            if (currentEnergy == 3)
-                            {
-                                coinP1img8.SetActive(false);
-                                coinP1img7.SetActive(false);
-                                coinP1img6.SetActive(false);
-                                coinP1img5.SetActive(false);
-                                coinP1img4.SetActive(false);
-                            }
-                            if (currentEnergy == 2)
-                            {
-                                coinP1img8.SetActive(false);
-                                coinP1img7.SetActive(false);
-                                coinP1img6.SetActive(false);
-                                coinP1img5.SetActive(false);
-                                coinP1img4.SetActive(false);
-                                coinP1img3.SetActive(false);
-                            }
-                            if (currentEnergy == 1)
-                            {
-                                coinP1img8.SetActive(false);
-                                coinP1img7.SetActive(false);
-                                coinP1img6.SetActive(false);
-                                coinP1img5.SetActive(false);
-                                coinP1img4.SetActive(false);
-                                coinP1img3.SetActive(false);
-                                coinP1img2.SetActive(false);
-                            }
-                            if (currentEnergy == 0)
-                            {
-                                coinP1img8.SetActive(false);
-                                coinP1img7.SetActive(false);
-                                coinP1img6.SetActive(false);
-                                coinP1img5.SetActive(false);
-                                coinP1img4.SetActive(false);
-                                coinP1img3.SetActive(false);
-                                coinP1img2.SetActive(false);
-                                coinP1img.SetActive(false);
-                            }
-
-                            if (currentEnergy == -1)
-                            {
-                                energyText.text = "0";
-                                coinP1img8.SetActive(false);
-                                coinP1img7.SetActive(false);
-                                coinP1img6.SetActive(false);
-                                coinP1img5.SetActive(false);
-                                coinP1img4.SetActive(false);
-                                coinP1img3.SetActive(false);
-                                coinP1img2.SetActive(false);
-                                coinP1img.SetActive(false);
-                            }
-                            card.transform.SetParent(transform);
-                            card.transform.localPosition = Vector3.zero;
-                            card.GetComponent<CanvasGroup>().blocksRaycasts = true;
-
-                            card.photonView.RPC("DisableCardBack2RPC", RpcTarget.All);
-                            GetPlacementSound();
-                            //GetComponent<Image>().color = highlightColor;
-                            //  HighlightValidSlots();
-                        }
-                        else 
-                        {
-                            gmmm.ErrorSound();
-                        }
-
-                    }
-
-                    if (card.transform.parent.name == "Hand" && gmmm.currentPhase == GamePhase.Move)
-                    {
-                        gmmm.ErrorSound();
-                    }
-
-                    if (card.transform.parent.tag == "BSlot" && gmmm.currentPhase == GamePhase.Draw)
-                    {
-                        gmmm.ErrorSound();
-                    }
-
-                    if (card.transform.parent.tag == "BSlot" && gmmm.currentPhase == GamePhase.Play)  {  if (rowIndex <=84) {/*  gmmm.ErrorSound();*/ }}
-
-                    if (card.transform.parent.tag == "BSlot" && gmmm.currentPhase == GamePhase.Move && card.canMove)
-                    {      //(rowIndex >= 84 && rowIndex < maxRowIndex) ||   card.GetComponent<DisplayCard>().MoveBoardSlots().Contains(transform
-                        if (card.AdjacentBSlotsAvailable().Contains(transform))  //MovementAvailable().Contains(transform)
-                        {                                                                 // card.transform.parent.name == "Hand"
-                            //currentEnergy -= cardEnergy;
-                            card.canMove = false;
-                            StartCoroutine(card.CanMoveNow(20f));
-                            currentEnergy -= 1;
-                            energyText.text = currentEnergy.ToString();
-                            healthBar.SetHealth(currentEnergy); //
-                            if (currentEnergy == 7)
-                            {
-                                coinP1img8.SetActive(false);
-                            }
-                            if (currentEnergy == 6)
-                            {
-                                coinP1img8.SetActive(false);
-                                coinP1img7.SetActive(false);
-                            }
-                            if (currentEnergy == 5)
-                            {
-                                coinP1img8.SetActive(false);
-                                coinP1img7.SetActive(false);
-                                coinP1img6.SetActive(false);
-                            }
-                            if (currentEnergy == 4)
-                            {
-                                coinP1img8.SetActive(false);
-                                coinP1img7.SetActive(false);
-                                coinP1img6.SetActive(false);
-                                coinP1img5.SetActive(false);
-                            }
-                            if (currentEnergy == 3)
-                            {
-                                coinP1img8.SetActive(false);
-                                coinP1img7.SetActive(false);
-                                coinP1img6.SetActive(false);
-                                coinP1img5.SetActive(false);
-                                coinP1img4.SetActive(false);
-                            }
-                            if (currentEnergy == 2)
-                            {
-                                coinP1img8.SetActive(false);
-                                coinP1img7.SetActive(false);
-                                coinP1img6.SetActive(false);
-                                coinP1img5.SetActive(false);
-                                coinP1img4.SetActive(false);
-                                coinP1img3.SetActive(false);
-                            }
-                            if (currentEnergy == 1)
-                            {
-                                coinP1img8.SetActive(false);
-                                coinP1img7.SetActive(false);
-                                coinP1img6.SetActive(false);
-                                coinP1img5.SetActive(false);
-                                coinP1img4.SetActive(false);
-                                coinP1img3.SetActive(false);
-                                coinP1img2.SetActive(false);
-                            }
-                            if (currentEnergy == 0)
-                            {
-                                coinP1img8.SetActive(false);
-                                coinP1img7.SetActive(false);
-                                coinP1img6.SetActive(false);
-                                coinP1img5.SetActive(false);
-                                coinP1img4.SetActive(false);
-                                coinP1img3.SetActive(false);
-                                coinP1img2.SetActive(false);
-                                coinP1img.SetActive(false);
-                            }
-
-                            if (currentEnergy == -1)
-                            {
-                                energyText.text = "0";
-                                coinP1img8.SetActive(false);
-                                coinP1img7.SetActive(false);
-                                coinP1img6.SetActive(false);
-                                coinP1img5.SetActive(false);
-                                coinP1img4.SetActive(false);
-                                coinP1img3.SetActive(false);
-                                coinP1img2.SetActive(false);
-                                coinP1img.SetActive(false);
-                            }
-                            card.transform.SetParent(transform);
-                            card.transform.localPosition = Vector3.zero;
-                            card.GetComponent<CanvasGroup>().blocksRaycasts = true;
-                            GetPlacementSound();
-
-                        }
-                        else 
-                        {
-                            gmmm.ErrorSound(); // Handle the boolean here     MAKE THE BOOLEAN TO CONTROL CARD MOVEMENT IN BSLOT
-                           
-                        }
-                    }
-                }
+                UpdateEnergy(ref currentEnergy, cardEnergy, true);
+                PlaceCard(card);
+            }
+            else if (card.transform.parent.tag == "BSlot" && gmmm.currentPhase == GamePhase.Move && card.canMove && card.AdjacentBSlotsAvailable().Contains(transform))
+            {
+                card.canMove = false;
+                StartCoroutine(card.CanMoveNow(20f));
+                UpdateEnergy(ref currentEnergy, 1, true);
+                PlaceCard(card);
             }
             else
             {
-                Debug.LogError("Invalid energyText value: " + energyText.text);
-                // Handle the error as needed.
+                gmmm.ErrorSound();
             }
-
-            // Snap the card to the slot.
-
         }
-
-        //if (card.transform.parent.name == "Hand2"){ }
-        else if (cardd.gameObject.tag == "Player2" || !PhotonNetwork.IsMasterClient)   //(2):CARD PLACEMENT PHASE
+        else
         {
-            //Debug.Log("THIS FUNCTION IS WORKING:"+cardd.transform.parent.name);
-            if (cardd != null && transform.childCount == 0)
+            gmmm.ErrorSound();
+        }
+    }
+
+    private void HandleCardDropP2(DisplayCard2 cardd, bool isP1Turn)
+    {
+        int carddEnergy = cardd.GetCardEnergy();
+        if (int.TryParse(energyTextP2.text, out currentEnergyP2) && currentEnergyP2 >= carddEnergy && !isP1Turn)
+        {
+            if (cardd.transform.parent.name == "Hand2" && gmmm.currentPhase == GamePhase.Play && PreviouslyPlacedAvailableP2().Contains(transform))
             {
-                int carddEnergy = cardd.GetCardEnergy();
-                
-                if (int.TryParse(energyTextP2.text, out currentEnergyP2))
-                {
-                    Debug.Log("CURRENTENERGY P2:"+currentEnergyP2);
-                    Debug.Log("CARDD ENERGY:"+carddEnergy);
-                    if (currentEnergyP2 >= carddEnergy && !isP1Turn)
-                    {
-                        Debug.Log("I AM HERE");
-                        int rowIndex = transform.GetSiblingIndex();
-                       // int maxRowIndex = 14;
-
-                        if (cardd.transform.parent.name == "Hand2" && gmmm.currentPhase == GamePhase.Draw)
-                        {
-                            gmmm.ErrorSound();
-                        }
-
-                        if (cardd.transform.parent.name == "Hand2" && gmmm.currentPhase == GamePhase.Move)
-                        {
-                            gmmm.ErrorSound();
-                        }
-
-                        if (cardd.transform.parent.tag == "BSlot" && gmmm.currentPhase == GamePhase.Draw)
-                        {
-                            gmmm.ErrorSound();
-                        }
-
-                        if (cardd.transform.parent.name == "Hand2" && gmmm.currentPhase == GamePhase.Play)
-                        {
-                            if (PreviouslyPlacedAvailableP2().Contains(transform))
-                            {
-
-                                currentEnergyP2 -= carddEnergy;
-                                energyTextP2.text = currentEnergyP2.ToString();
-                                healthBar.SetHealth2(currentEnergyP2); //
-                                                                       //HERE I HAVE TO DESTROY THE IMAGES OF COIN
-                                if (currentEnergyP2 == 7)
-                                {
-                                    coinP2img8.SetActive(false);
-                                }
-                                if (currentEnergyP2 == 6)
-                                {
-                                    coinP2img8.SetActive(false);
-                                    coinP2img7.SetActive(false);
-                                }
-                                if (currentEnergyP2 == 5)
-                                {
-                                    coinP2img8.SetActive(false);
-                                    coinP2img7.SetActive(false);
-                                    coinP2img6.SetActive(false);
-                                }
-                                if (currentEnergyP2 == 4)
-                                {
-                                    coinP2img8.SetActive(false);
-                                    coinP2img7.SetActive(false);
-                                    coinP2img6.SetActive(false);
-                                    coinP2img5.SetActive(false);
-                                }
-                                if (currentEnergyP2 == 3)
-                                {
-                                    coinP2img8.SetActive(false);
-                                    coinP2img7.SetActive(false);
-                                    coinP2img6.SetActive(false);
-                                    coinP2img5.SetActive(false);
-                                    coinP2img4.SetActive(false);
-                                }
-                                if (currentEnergyP2 == 2)
-                                {
-                                    coinP2img8.SetActive(false);
-                                    coinP2img7.SetActive(false);
-                                    coinP2img6.SetActive(false);
-                                    coinP2img5.SetActive(false);
-                                    coinP2img4.SetActive(false);
-                                    coinP2img3.SetActive(false);
-                                }
-                                if (currentEnergyP2 == 1)
-                                {
-                                    coinP2img8.SetActive(false);
-                                    coinP2img7.SetActive(false);
-                                    coinP2img6.SetActive(false);
-                                    coinP2img5.SetActive(false);
-                                    coinP2img4.SetActive(false);
-                                    coinP2img3.SetActive(false);
-                                    coinP2img2.SetActive(false);
-                                }
-                                if (currentEnergyP2 == 0)
-                                {
-                                    coinP2img8.SetActive(false);
-                                    coinP2img7.SetActive(false);
-                                    coinP2img6.SetActive(false);
-                                    coinP2img5.SetActive(false);
-                                    coinP2img4.SetActive(false);
-                                    coinP2img3.SetActive(false);
-                                    coinP2img2.SetActive(false);
-                                    coinP2img.SetActive(false);
-                                }
-
-                                if (currentEnergyP2 == -1)
-                                {
-                                    energyTextP2.text = "0";
-                                    coinP2img8.SetActive(false);
-                                    coinP2img7.SetActive(false);
-                                    coinP2img6.SetActive(false);
-                                    coinP2img5.SetActive(false);
-                                    coinP2img4.SetActive(false);
-                                    coinP2img3.SetActive(false);
-                                    coinP2img2.SetActive(false);
-                                    coinP2img.SetActive(false);
-                                }
-                                cardd.transform.SetParent(transform);
-                                cardd.transform.localPosition = Vector3.zero;
-                                cardd.GetComponent<CanvasGroup>().blocksRaycasts = true;
-
-                                Scene cs = SceneManager.GetActiveScene();
-                                if (cs.name == "AI") 
-                                {
-                                    Image carddBackImage = cardd.transform.Find("Back").GetComponent<Image>();
-                                    carddBackImage.enabled = false;
-                                }
-
-                                // Call the RPC to disable the card back image for all players
-                                cardd.photonView.RPC("DisableCardBackRPC", RpcTarget.All);
-
-                                GetPlacementSound();
-                                //  Debug.Log("Child:"+ transform.parent.GetChild(rowIndex - 1).GetChild(0));
-                            }
-                            else 
-                            {
-                                gmmm.ErrorSound();
-                            }
-                        }
-
-                        if (cardd.transform.parent.tag == "BSlot" && gmmm.currentPhase == GamePhase.Play) { if (rowIndex >= 14) { /*   gmmm.ErrorSound(); */ }}
-
-
-                        if (cardd.transform.parent.tag == "BSlot" && gmmm.currentPhase == GamePhase.Move  && cardd.canMove)
-                        {
-                            if (cardd.AdjacentBSlotsAvailable().Contains(transform))
-                            { 
-                                cardd.canMove = false;
-                                StartCoroutine(cardd.CanMoveNow(20f));
-                                //currentEnergyP2 -= carddEnergy;
-                                currentEnergyP2 -= 1;
-                                energyTextP2.text = currentEnergyP2.ToString();
-                                healthBar.SetHealth2(currentEnergyP2); //
-                                if (currentEnergyP2 == 7)
-                                {
-                                    coinP2img8.SetActive(false);
-                                }
-                                if (currentEnergyP2 == 6)
-                                {
-                                    coinP2img8.SetActive(false);
-                                    coinP2img7.SetActive(false);
-                                }
-                                if (currentEnergyP2 == 5)
-                                {
-                                    coinP2img8.SetActive(false);
-                                    coinP2img7.SetActive(false);
-                                    coinP2img6.SetActive(false);
-                                }
-                                if (currentEnergyP2 == 4)
-                                {
-                                    coinP2img8.SetActive(false);
-                                    coinP2img7.SetActive(false);
-                                    coinP2img6.SetActive(false);
-                                    coinP2img5.SetActive(false);
-                                }
-                                if (currentEnergyP2 == 3)
-                                {
-                                    coinP2img8.SetActive(false);
-                                    coinP2img7.SetActive(false);
-                                    coinP2img6.SetActive(false);
-                                    coinP2img5.SetActive(false);
-                                    coinP2img4.SetActive(false);
-                                }
-                                if (currentEnergyP2 == 2)
-                                {
-                                    coinP2img8.SetActive(false);
-                                    coinP2img7.SetActive(false);
-                                    coinP2img6.SetActive(false);
-                                    coinP2img5.SetActive(false);
-                                    coinP2img4.SetActive(false);
-                                    coinP2img3.SetActive(false);
-                                }
-                                if (currentEnergyP2 == 1)
-                                {
-                                    coinP2img8.SetActive(false);
-                                    coinP2img7.SetActive(false);
-                                    coinP2img6.SetActive(false);
-                                    coinP2img5.SetActive(false);
-                                    coinP2img4.SetActive(false);
-                                    coinP2img3.SetActive(false);
-                                    coinP2img2.SetActive(false);
-                                }
-                                if (currentEnergyP2 == 0)
-                                {
-                                    coinP2img8.SetActive(false);
-                                    coinP2img7.SetActive(false);
-                                    coinP2img6.SetActive(false);
-                                    coinP2img5.SetActive(false);
-                                    coinP2img4.SetActive(false);
-                                    coinP2img3.SetActive(false);
-                                    coinP2img2.SetActive(false);
-                                    coinP2img.SetActive(false);
-                                }
-
-                                if (currentEnergyP2 == -1)
-                                {
-                                    energyTextP2.text = "0";
-                                    coinP2img8.SetActive(false);
-                                    coinP2img7.SetActive(false);
-                                    coinP2img6.SetActive(false);
-                                    coinP2img5.SetActive(false);
-                                    coinP2img4.SetActive(false);
-                                    coinP2img3.SetActive(false);
-                                    coinP2img2.SetActive(false);
-                                    coinP2img.SetActive(false);
-                                }
-                                cardd.transform.SetParent(transform);
-                                cardd.transform.localPosition = Vector3.zero;
-                                cardd.GetComponent<CanvasGroup>().blocksRaycasts = true;
-
-                                Image carddBackImage = cardd.transform.Find("Back").GetComponent<Image>();
-                                carddBackImage.enabled = false;
-
-                                GetPlacementSound();
-                                //  Debug.Log("Child:"+ transform.parent.GetChild(rowIndex - 1).GetChild(0));
-                            }
-                            else 
-                            {
-                                gmmm.ErrorSound();
-                            }
-                        }
-
-                    }
-                }
-                else
-                {
-                    Debug.LogError("Invalid energyText value: " + energyTextP2.text);
-                    // Handle the error as needed.
-                }
-
-                // Snap the card to the slot.
-
+                UpdateEnergy(ref currentEnergyP2, carddEnergy, false);
+                PlaceCardP2(cardd);
+            }
+            else if (cardd.transform.parent.tag == "BSlot" && gmmm.currentPhase == GamePhase.Move && cardd.canMove && cardd.AdjacentBSlotsAvailable().Contains(transform))
+            {
+                cardd.canMove = false;
+                StartCoroutine(cardd.CanMoveNow(20f));
+                UpdateEnergy(ref currentEnergyP2, 1, false);
+                PlaceCardP2(cardd);
+            }
+            else
+            {
+                gmmm.ErrorSound();
             }
         }
+        else
+        {
+            gmmm.ErrorSound();
+        }
+    }
 
-        // GetComponent<Image>().color = originalColor;
+    private void UpdateEnergy(ref int currentEnergy, int energyCost, bool isP1)
+    {
+        currentEnergy -= energyCost;
+        if (isP1)
+        {
+            energyText.text = currentEnergy.ToString();
+            healthBar.SetHealth(currentEnergy);
+        }
+        else
+        {
+            energyTextP2.text = currentEnergy.ToString();
+            healthBar.SetHealth2(currentEnergy);
+        }
+        UpdateCoinImages(currentEnergy, isP1);
+    }
+
+    private void UpdateCoinImages(int currentEnergy, bool isP1)
+    {
+        GameObject[] coinImages = isP1 ? new GameObject[] { coinP1img, coinP1img2, coinP1img3, coinP1img4, coinP1img5, coinP1img6, coinP1img7, coinP1img8 } :
+                                         new GameObject[] { coinP2img, coinP2img2, coinP2img3, coinP2img4, coinP2img5, coinP2img6, coinP2img7, coinP2img8 };
+
+        for (int i = 0; i < coinImages.Length; i++)
+        {
+            coinImages[i].SetActive(currentEnergy > i);
+        }
+    }
+
+    private void PlaceCard(DisplayCard card)
+    {
+        card.transform.SetParent(transform);
+        card.transform.localPosition = Vector3.zero;
+        card.GetComponent<CanvasGroup>().blocksRaycasts = true;
+        card.photonView.RPC("DisableCardBack2RPC", RpcTarget.All);
+        GetPlacementSound();
+    }
+
+    private void PlaceCardP2(DisplayCard2 cardd)
+    {
+        cardd.transform.SetParent(transform);
+        cardd.transform.localPosition = Vector3.zero;
+        cardd.GetComponent<CanvasGroup>().blocksRaycasts = true;
+        Scene cs = SceneManager.GetActiveScene();
+        if (cs.name == "AI")
+        {
+            Image carddBackImage = cardd.transform.Find("Back").GetComponent<Image>();
+            carddBackImage.enabled = false;
+        }
+        cardd.photonView.RPC("DisableCardBackRPC", RpcTarget.All);
+        GetPlacementSound();
     }
 
     public void SpendOnAttack() 

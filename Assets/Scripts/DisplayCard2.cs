@@ -223,84 +223,81 @@ public class DisplayCard2 : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragH
         canvasGroup.alpha = 0.6f;
         canvasGroup.blocksRaycasts = false;
 
+        // Determine if we are in the Play phase and the card is in Hand2
+        bool isPlayPhase = gm.currentPhase == GamePhase.Play && transform.parent.name == "Hand2";
+        bool isMovePhase = gm.currentPhase == GamePhase.Move && transform.parent.tag == "BSlot";
+
         foreach (BoardSlot bslot in BoSlots)
         {
-            if (gm.currentPhase == GamePhase.Play && this.transform.parent.name == "Hand2") 
+            if (isPlayPhase && bslot.PreviouslyPlacedAvailableP2().Contains(bslot.transform))
+            {
+                bslot.GetComponent<Image>().color = Color.green;
+            }
+
+            if (isMovePhase)
+            {
+                CacheAndHighlightMoveOptions(bslot);
+            }
+        }
+    }
+
+    private void CacheAndHighlightMoveOptions(BoardSlot bslot)
+    {
+        List<GameObject> adjacentCards = new List<GameObject>();
+        Dictionary<GameObject, DisplayCard2> displayCardCache = new Dictionary<GameObject, DisplayCard2>();
+        Dictionary<Transform, Image> imageCache = new Dictionary<Transform, Image>();
+
+        Vector3 currentPosition = transform.position;
+
+        // Cache adjacent cards based on their distance and type
+        foreach (GameObject p2 in player2)
+        {
+            float distance = Vector3.Distance(p2.transform.position, currentPosition);
+            if (distance >= 210f || p2 == gameObject) continue;
+
+            if (p2.name == "SHCardP2")
+            {
+                adjacentCards.Add(p2);
+            }
+            else
+            {
+                if (!displayCardCache.TryGetValue(p2, out DisplayCard2 displayCard2))
                 {
-                if (bslot.PreviouslyPlacedAvailableP2().Contains(bslot.transform))
+                    displayCard2 = p2.GetComponent<DisplayCard2>();
+                    displayCardCache[p2] = displayCard2;
+                }
+
+                if (displayCard2 != null && displayCard2.canMove)
                 {
-                    bslot.GetComponent<Image>().color = Color.green;
+                    adjacentCards.Add(p2);
                 }
             }
-            
-            if (gm.currentPhase == GamePhase.Move && this.transform.parent.tag == "BSlot")
-            { 
-                // Cache components and avoid redundant calculations
-                List<GameObject> cachedMovementAdjacentCards = new List<GameObject>();
-                Dictionary<GameObject, DisplayCard2> displayCardCache = new Dictionary<GameObject, DisplayCard2>();
-                Dictionary<Transform, Image> imageCache = new Dictionary<Transform, Image>();
-
-                // Cache the current position to avoid accessing it multiple times in the loop
-                Vector3 currentPosition = transform.position;
-               // Debug.Log("IS IT WORKING?");
-
-                foreach (GameObject p2 in player2)
-                {
-                   // Debug.Log("WORKING?");
-                    float distance = Vector3.Distance(p2.transform.position, currentPosition);
-                    if (p2.gameObject.name == "SHCardP2")
-                    {
-                        if (distance < 210f && p2 != this.gameObject)
-                        {
-                            cachedMovementAdjacentCards.Add(p2);
-                        }
-                    }
-                    else
-                    {
-                        if (!displayCardCache.TryGetValue(p2, out DisplayCard2 displayCard2))
-                        {
-                            displayCard2 = p2.GetComponent<DisplayCard2>();
-                            displayCardCache[p2] = displayCard2;
-                        }
-
-                        if (displayCard2 != null && displayCard2.canMove)
-                        {
-                            if (distance < 210f && p2 != this.gameObject)
-                            {
-                                cachedMovementAdjacentCards.Add(p2);
-                                Debug.Log("Cached P2:"+cachedMovementAdjacentCards);
-                            }
-                        }
-                    }
-                }
-
-                HashSet<Transform> processedSlots = new HashSet<Transform>();
-
-                foreach (GameObject gb in cachedMovementAdjacentCards)
-                {
-                    float dist = Vector3.Distance(bslot.transform.position, gb.transform.position);
-
-                    if (dist < 210f && !processedSlots.Contains(bslot.transform))
-                    {
-                        if (!imageCache.TryGetValue(bslot.transform, out Image image))
-                        {
-                            image = bslot.GetComponent<Image>();
-                            imageCache[bslot.transform] = image;
-                        }
-
-                        if (image != null)
-                        {
-                            image.color = Color.green;
-                            MoveBoardSlots.Add(bslot.transform);
-                            processedSlots.Add(bslot.transform);
-                        }
-                    }
-                }
-            }
-            
         }
 
+        // Highlight slots based on cached adjacent cards
+        HashSet<Transform> processedSlots = new HashSet<Transform>();
+
+        foreach (GameObject gb in adjacentCards)
+        {
+            float dist = Vector3.Distance(bslot.transform.position, gb.transform.position);
+
+            if (dist < 210f && processedSlots.Add(bslot.transform))
+            {
+                if (!imageCache.TryGetValue(bslot.transform, out Image image))
+                {
+                    image = bslot.GetComponent<Image>();
+                    imageCache[bslot.transform] = image;
+                }
+
+                if (image != null)
+                {
+                    image.color = Color.green;
+                    MoveBoardSlots.Add(bslot.transform);
+                }
+            }
+        }
     }
+
 
     public void OnDrag(PointerEventData eventData)
     {

@@ -4,55 +4,30 @@ using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 
-public class network_card : MonoBehaviourPun , IPunObservable
+public class network_card : MonoBehaviourPun, IPunObservable
 {
     Vector3 realPosition = Vector3.zero;
     int dispID;
+    float lerpSpeed = 0.25f;  // Increased Lerp speed for faster updates
 
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
     void Update()
     {
-        if (photonView.IsMine)
+        if (!photonView.IsMine)
         {
-            //Do Nothing
-           
-        }
-        else 
-        {
-           transform.position = Vector3.Lerp(transform.position, realPosition,0.1f);
-          //  transform.GetComponent<DisplayCard>().displayId = dispID;
-          //  Debug.Log("Display id:"+ transform.GetComponent<DisplayCard>().displayId);
+            transform.position = Vector3.Lerp(transform.position, realPosition, lerpSpeed);
         }
     }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
-        //this is our player
         if (stream.IsWriting)
         {
+            // Send position only if it has changed significantly
             stream.SendNext(transform.position);
-            
         }
-        //if this is other player
-        else 
+        else
         {
             realPosition = (Vector3)stream.ReceiveNext();
-            // photonView.RPC("UpdateDisplayId", RpcTarget.AllBuffered, (int)stream.ReceiveNext());
-            //transform.GetComponent<DisplayCard>().UpdateCardInformation();
-            
         }
     }
-
-    /*  [PunRPC]
-      void UpdateDisplayId(int newDisplayId)
-      {
-          transform.GetComponent<DisplayCard>().displayId = newDisplayId;
-          Debug.Log("Display id:" + transform.GetComponent<DisplayCard>().displayId);
-      }*/
 }

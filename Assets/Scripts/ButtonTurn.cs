@@ -148,203 +148,93 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
     public IEnumerator PlaceToBoard(float delayed)
     {
         yield return new WaitForSeconds(delayed);
+
+        // Select a random slot and card
         SelectedRandomSetupSlot();
         SelectRandomCard();
-        //selectedCard.transform.position = randomSlot.position;
-        //CardShufflerP2.remove(selectedCard);
-        // CShufflerP2.handList.Remove(selectedCard.gameObject);
 
+        // Place the card on the board
         selectedCard.transform.SetParent(randomSlot);
         selectedCard.transform.localPosition = Vector3.zero;
-        Image carddBackImage = selectedCard.transform.Find("Back").GetComponent<Image>();
-        carddBackImage.enabled = false;
-        boardSlot.GetPlacementSound();  //hand.OrderByDescending(card => card.AttackPower + card.DefensePower).First();
 
-        // boardSlot.UpdateMoveListP2();
-        CardPlacedToBoard.Add(selectedCard); // FINE TILL HERE   "CARD PLACED FROM HAND TO BOARD HAVE BEEN ADDED TO LIST"
-        Debug.Log("Card in new list:" + CardPlacedToBoard.Count);
-        int cardE = selectedCard.GetComponent<DisplayCard2>().GetCardEnergy();
-        int CoinE = BoardSlot.GetCurrentEnergyP2();
-        int newCoinE = CoinE - cardE;
-        BoardSlot.SetCurrentEnergyP2(newCoinE);
-        Debug.Log("Card Energy:" + cardE);
-        Debug.Log("Old CEnergy:" + CoinE);
-        Debug.Log("New CEnergy:" + newCoinE);
-        if (newCoinE == 7)
+        // Disable the card back image
+        selectedCard.transform.Find("Back").GetComponent<Image>().enabled = false;
+
+        // Play placement sound
+        boardSlot.GetPlacementSound();
+
+        // Add card to the list of placed cards
+        CardPlacedToBoard.Add(selectedCard);
+        Debug.Log($"Card in new list: {CardPlacedToBoard.Count}");
+
+        // Update player's energy
+        int cardEnergy = selectedCard.GetComponent<DisplayCard2>().GetCardEnergy();
+        int currentEnergy = BoardSlot.GetCurrentEnergyP2();
+        int newEnergy = currentEnergy - cardEnergy;
+        BoardSlot.SetCurrentEnergyP2(newEnergy);
+
+        Debug.Log($"Card Energy: {cardEnergy}");
+        Debug.Log($"Old CEnergy: {currentEnergy}");
+        Debug.Log($"New CEnergy: {newEnergy}");
+
+        // Update the energy display
+        UpdateEnergyDisplay(newEnergy);
+    }
+
+    private void UpdateEnergyDisplay(int newEnergy)
+    {
+        // Access the coin images directly and disable them based on the new energy level
+        GameObject[] coinImages = {
+        boardSlot.coinP2img, boardSlot.coinP2img2, boardSlot.coinP2img3,
+        boardSlot.coinP2img4, boardSlot.coinP2img5, boardSlot.coinP2img6,
+        boardSlot.coinP2img7, boardSlot.coinP2img8
+    };
+
+        for (int i = 7; i >= newEnergy; i--)
         {
-            boardSlot.coinP2img8.SetActive(false);
+            coinImages[i].SetActive(false);
         }
-        if (newCoinE == 6)
-        {
-            boardSlot.coinP2img8.SetActive(false);
-            boardSlot.coinP2img7.SetActive(false);
-        }
-        if (newCoinE == 5)
-        {
-            boardSlot.coinP2img8.SetActive(false);
-            boardSlot.coinP2img7.SetActive(false);
-            boardSlot.coinP2img6.SetActive(false);
-        }
-        if (newCoinE == 4)
-        {
-            boardSlot.coinP2img8.SetActive(false);
-            boardSlot.coinP2img7.SetActive(false);
-            boardSlot.coinP2img6.SetActive(false);
-            boardSlot.coinP2img5.SetActive(false);
-        }
-        if (newCoinE == 3)
-        {
-            boardSlot.coinP2img8.SetActive(false);
-            boardSlot.coinP2img7.SetActive(false);
-            boardSlot.coinP2img6.SetActive(false);
-            boardSlot.coinP2img5.SetActive(false);
-            boardSlot.coinP2img4.SetActive(false);
-        }
-        if (newCoinE == 2)
-        {
-            boardSlot.coinP2img8.SetActive(false);
-            boardSlot.coinP2img7.SetActive(false);
-            boardSlot.coinP2img6.SetActive(false);
-            boardSlot.coinP2img5.SetActive(false);
-            boardSlot.coinP2img4.SetActive(false);
-            boardSlot.coinP2img3.SetActive(false);
-        }
-        if (newCoinE == 1)
-        {
-            boardSlot.coinP2img8.SetActive(false);
-            boardSlot.coinP2img7.SetActive(false);
-            boardSlot.coinP2img6.SetActive(false);
-            boardSlot.coinP2img5.SetActive(false);
-            boardSlot.coinP2img4.SetActive(false);
-            boardSlot.coinP2img3.SetActive(false);
-            boardSlot.coinP2img2.SetActive(false);
-        }
-        if (newCoinE == 0)
-        {
-            boardSlot.coinP2img8.SetActive(false);
-            boardSlot.coinP2img7.SetActive(false);
-            boardSlot.coinP2img6.SetActive(false);
-            boardSlot.coinP2img5.SetActive(false);
-            boardSlot.coinP2img4.SetActive(false);
-            boardSlot.coinP2img3.SetActive(false);
-            boardSlot.coinP2img2.SetActive(false);
-            boardSlot.coinP2img.SetActive(false);
-        }
-        if (newCoinE == -1)
+
+        // If energy is 0 or negative, update the energy text
+        if (newEnergy <= 0)
         {
             boardSlot.energyTextP2.text = "0";
-            boardSlot.coinP2img8.SetActive(false);
-            boardSlot.coinP2img7.SetActive(false);
-            boardSlot.coinP2img6.SetActive(false);
-            boardSlot.coinP2img5.SetActive(false);
-            boardSlot.coinP2img4.SetActive(false);
-            boardSlot.coinP2img3.SetActive(false);
-            boardSlot.coinP2img2.SetActive(false);
-            boardSlot.coinP2img.SetActive(false);
         }
-        //if newCoinE ==7 { coinP2img8.SetActive(false); }
-        // boardSlot.UpdateMoveListP2();
     }
 
     public IEnumerator MoveInBoard(float del)
     {
         yield return new WaitForSeconds(del);
-        // SelectRandomMoveSlot();
-        //SelectCardToMove();
+
+        // Retrieve adjacent cards and a random move slot
         GetAdjacentBslotCards();
         GetRandomMoveBSlot();
+
+        // Check if the selected card can move
         DisplayCard2 dpcrd2 = selectedCARD.GetComponent<DisplayCard2>();
-        if (dpcrd2.canMove) //selectedCARD.canMove == true
+        if (dpcrd2.canMove)
         {
-            Debug.Log("This is th card been selected to Move:" + selectedCARD.name);
-            Debug.Log("This is th Board SLot the card will move to:" + BoardSlt.name);
+            Debug.Log($"This is the card been selected to Move: {selectedCARD.name}");
+            Debug.Log($"This is the Board Slot the card will move to: {BoardSlt.name}");
+
+            // Move the card to the selected slot
             selectedCARD.transform.SetParent(BoardSlt);
             selectedCARD.transform.localPosition = Vector3.zero;
-            selectedCARD.GetComponent<DisplayCard2>().canMove = false;
-
-            // SelectRandomMoveSlot();                            // MOVE IN BOARD
-            // selectedCARD.transform.SetParent(randomSlotMove);  // MOVE IN BOARD
-            //  selectedCARD.transform.localPosition = Vector3.zero;
-            //  boardSlot.GetPlacementSound();
-            // selectedCARD.GetComponent<DisplayCard2>().outerBorder.color = Color.white;
-            int coinEnergy = BoardSlot.GetCurrentEnergyP2();
-            int newCE = coinEnergy - 1;
-            BoardSlot.SetCurrentEnergyP2(newCE);
-            if (newCE == 7)
-            {
-                boardSlot.coinP2img8.SetActive(false);
-            }
-            if (newCE == 6)
-            {
-                boardSlot.coinP2img8.SetActive(false);
-                boardSlot.coinP2img7.SetActive(false);
-            }
-            if (newCE == 5)
-            {
-                boardSlot.coinP2img8.SetActive(false);
-                boardSlot.coinP2img7.SetActive(false);
-                boardSlot.coinP2img6.SetActive(false);
-            }
-            if (newCE == 4)
-            {
-                boardSlot.coinP2img8.SetActive(false);
-                boardSlot.coinP2img7.SetActive(false);
-                boardSlot.coinP2img6.SetActive(false);
-                boardSlot.coinP2img5.SetActive(false);
-            }
-            if (newCE == 3)
-            {
-                boardSlot.coinP2img8.SetActive(false);
-                boardSlot.coinP2img7.SetActive(false);
-                boardSlot.coinP2img6.SetActive(false);
-                boardSlot.coinP2img5.SetActive(false);
-                boardSlot.coinP2img4.SetActive(false);
-            }
-            if (newCE == 2)
-            {
-                boardSlot.coinP2img8.SetActive(false);
-                boardSlot.coinP2img7.SetActive(false);
-                boardSlot.coinP2img6.SetActive(false);
-                boardSlot.coinP2img5.SetActive(false);
-                boardSlot.coinP2img4.SetActive(false);
-                boardSlot.coinP2img3.SetActive(false);
-            }
-            if (newCE == 1)
-            {
-                boardSlot.coinP2img8.SetActive(false);
-                boardSlot.coinP2img7.SetActive(false);
-                boardSlot.coinP2img6.SetActive(false);
-                boardSlot.coinP2img5.SetActive(false);
-                boardSlot.coinP2img4.SetActive(false);
-                boardSlot.coinP2img3.SetActive(false);
-                boardSlot.coinP2img2.SetActive(false);
-            }
-            if (newCE == 0)
-            {
-                boardSlot.coinP2img8.SetActive(false);
-                boardSlot.coinP2img7.SetActive(false);
-                boardSlot.coinP2img6.SetActive(false);
-                boardSlot.coinP2img5.SetActive(false);
-                boardSlot.coinP2img4.SetActive(false);
-                boardSlot.coinP2img3.SetActive(false);
-                boardSlot.coinP2img2.SetActive(false);
-                boardSlot.coinP2img.SetActive(false);
-            }
-            if (newCE == -1)
-            {
-                boardSlot.energyTextP2.text = "0";
-                boardSlot.coinP2img8.SetActive(false);
-                boardSlot.coinP2img7.SetActive(false);
-                boardSlot.coinP2img6.SetActive(false);
-                boardSlot.coinP2img5.SetActive(false);
-                boardSlot.coinP2img4.SetActive(false);
-                boardSlot.coinP2img3.SetActive(false);
-                boardSlot.coinP2img2.SetActive(false);
-                boardSlot.coinP2img.SetActive(false);
-            }
-            //SelectAttackCard();
             dpcrd2.canMove = false;
+
+            // Update player's energy
+            int newEnergy = UpdateEnergy(BoardSlot.GetCurrentEnergyP2(), 1);
+
+            // Update the energy display
+            UpdateEnergyDisplay(newEnergy);
         }
+    }
+
+    private int UpdateEnergy(int currentEnergy, int cost)
+    {
+        int newEnergy = currentEnergy - cost;
+        BoardSlot.SetCurrentEnergyP2(newEnergy);
+        return newEnergy;
     }
 
     public void SelectedRandomSetupSlot() //PICKING SETUP SLOT
