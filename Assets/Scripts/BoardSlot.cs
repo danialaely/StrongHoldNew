@@ -197,7 +197,7 @@ public class BoardSlot : MonoBehaviourPunCallbacks, IDropHandler
         {
             int rwindex = slot.GetSiblingIndex();
 
-            // Check if any adjacent slot has a card tagged as "Player1"
+            // Check if any adjacent slot has a card tagged as "Player2"
             if ((rwindex > 0 && transform.parent.GetChild(rwindex - 1).childCount > 0 && transform.parent.GetChild(rwindex - 1).GetChild(0).CompareTag("Player2")) ||
                 (rwindex > 12 && transform.parent.GetChild(rwindex - 13).childCount > 0 && transform.parent.GetChild(rwindex - 13).GetChild(0).CompareTag("Player2")) ||
                 (rwindex > 13 && transform.parent.GetChild(rwindex - 14).childCount > 0 && transform.parent.GetChild(rwindex - 14).GetChild(0).CompareTag("Player2")) ||

@@ -1,3 +1,4 @@
+using Photon.Pun;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -6,7 +7,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using static UnityEngine.GraphicsBuffer;
 
-public class Dice : MonoBehaviour
+public class Dice : MonoBehaviourPunCallbacks
 {
 
     // Array of dice sides sprites to load from Resources folder
@@ -293,10 +294,19 @@ public class Dice : MonoBehaviour
                           //  SHoldHealthP2.text = healthValStP2.ToString();
 
                         }
-                        else if ((GetDice() + defenderCard.GetP1Power()) > ((GetDice2()) + defenderCard.GetP2Power())) 
+                        else if ((GetDice() + defenderCard.GetP1Power()) > ((GetDice2()) + defenderCard.GetP2Power()))
                         {
                             Debug.Log("ATTACKER Dice:" + GetDice() + "+" + "Attack:" + defenderCard.GetP1Power() + "=" + (GetDice() + defenderCard.GetP1Power()));
                             Debug.Log("DEFENSE Dice:" + GetDice2() + "+" + "Attack:" + defenderCard.GetP2Power() + "=" + (GetDice2() + defenderCard.GetP2Power()));
+
+                            // Request ownership before moving the card
+                            if (currentScene.name == "SampleScene") 
+                            {
+                                if (defenderCard.photonView.Owner != PhotonNetwork.LocalPlayer)
+                                {
+                                    defenderCard.photonView.RequestOwnership();
+                                }
+                            }
 
                             discaranimator.SetBool("isDiscard", true);
                             Transform discarcard = defenderCard.transform;
@@ -308,8 +318,8 @@ public class Dice : MonoBehaviour
                             defenderCard.OnPtClc(); //MADE CHANGES HERE
                             DiscardSound();
 
-                           // healthValStP2 -= 2.5f;
-                           // SHoldHealthP2.text = healthValStP2.ToString();
+                            // Notify other players about the discard action
+                            photonView.RPC("SyncCardDiscard", RpcTarget.Others, defenderCard.photonView.ViewID);
 
                             CanAttackP1 = false;
                             StartCoroutine(CanAttackNowP1(10.0f));

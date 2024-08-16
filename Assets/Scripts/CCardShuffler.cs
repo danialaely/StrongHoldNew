@@ -175,6 +175,7 @@ public class CCardShuffler : MonoBehaviour
 
                 card.UpdateClientInfo(card.displayId);
             }
+           // gm.ChangePhase(GamePhase.Play);
         }
 
 
@@ -218,6 +219,7 @@ public class CCardShuffler : MonoBehaviour
                 Transform cardToMove = deck.transform.GetChild(deck.transform.childCount - 1);
                 cardToMove.SetParent(hand.transform);
             }
+            gm.ChangePhase(GamePhase.Play);
         }
     }
 }

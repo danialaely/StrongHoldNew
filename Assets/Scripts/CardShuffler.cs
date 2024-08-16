@@ -158,6 +158,7 @@ public class CardShuffler : MonoBehaviourPunCallbacks
                 Transform cardToMove = deck.transform.GetChild(deck.transform.childCount - 1);
                 cardToMove.SetParent(hand.transform);
             }
+            gm.ChangePhase(GamePhase.Play);
         }
     }
 }

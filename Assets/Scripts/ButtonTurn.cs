@@ -79,6 +79,7 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
 
     // public GameObject phaseButton;
     public GameObject turnButton; //Line 827   if (PhotonNetwork.isMasterClient) --> turnButton.enabled = false;
+    public GameObject phaseButton;
 
     private const byte TurnChangeEventCode = 1;
     public const byte ResetTimerEventCode = 2;
@@ -630,6 +631,12 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
     public void Attack()
     {
         //Same logic random slot, the adjacent would be "player2"
+        //boardSlot.AdjacentP1Available().Clear();
+        adjacentSlotsP1.Clear();
+        AiAttackCards.Clear();
+        adjacentSlotsP1.Clear();
+        boardSlot.AdjacentBslotListP1();
+        boardSlot.UpdatePreviousCardsListP2();
         if (adjacentSlotsP1.Count > 0)
         {
             foreach (Transform slot in adjacentSlotsP1)
@@ -722,6 +729,11 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
                 defenseCard.GetComponent<DisplayCard>().OnPtcClk();
                 StartCoroutine(RollingDice(2.0f));
                 StartCoroutine(DeselectAtcCard(6.0f));
+                if (gameToggleManager.EasyToggle.isOn || gameToggleManager.MediumToggle.isOn)
+                {
+                    StartCoroutine(TurnBtnActive(7.0f));
+                    StartCoroutine(PhaseBtnActive(7.0f));
+                }
             }
             else
             {
@@ -733,6 +745,8 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
         else
         {
             Debug.Log("No Cards for Attack");
+                StartCoroutine(TurnBtnActive(1.0f));
+                StartCoroutine(PhaseBtnActive(1.0f));
         }
     }
 
@@ -768,6 +782,17 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
         SelectAttackCard();
     }
 
+    IEnumerator TurnBtnActive(float delay) 
+    {
+        yield return new WaitForSeconds(delay);
+        turnButton.SetActive(true);
+    }
+    IEnumerator PhaseBtnActive(float delay) 
+    {
+        yield return new WaitForSeconds(delay);
+        phaseButton.SetActive(true);
+    }
+
     IEnumerator ChangeAIPhaseToSetup(float delay)
     {
         yield return new WaitForSeconds(delay);
@@ -781,6 +806,7 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
             //StartCoroutine(MoveInBoard(7.0f));
             StartCoroutine(ChangeAIPhaseToAttack(5.0f));
             StartCoroutine(Attacking(6.0f));
+            //StartCoroutine(TurnBtnActive(11.0f));
         }
         else if (gameToggleManager.HardToggle.isOn)
         {
@@ -791,14 +817,26 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
             //StartCoroutine(MoveInBoard(7.0f));
             StartCoroutine(ChangeAIPhaseToAttack(6.0f));
             StartCoroutine(Attacking(6.0f));
+                    //StartCoroutine(TurnBtnActive(12.0f));
+                    StartCoroutine(TurnBtnActive(21.0f));
+                    StartCoroutine(PhaseBtnActive(21.0f));
             int val = BoardSlot.GetCurrentEnergyP2();
             if (val > 2)
             {
                 StartCoroutine(Attacking(15.0f));
             }
+            else if (val < 2) 
+            {
+                if (gmm.currentPhase == GamePhase.Attack) 
+                {
+                    StartCoroutine(TurnBtnActive(12.0f));
+                    StartCoroutine(PhaseBtnActive(12.0f));
+                } 
+            }
             //StartCoroutine(SelectAttackCard(7.0f));
         }
     }
+
     #endregion Ai
 
     IEnumerator StartingtheGame(float delay)
@@ -848,6 +886,8 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
                     adjacentBSlots.Clear();
                     if (currentScene.name == "AI")
                     {
+                        turnButton.SetActive(false);
+                        phaseButton.SetActive(false);
                         StartCoroutine(ChangeAIPhaseToSetup(3.0f));
                     }
                 }
@@ -873,6 +913,8 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
                 deckP2.enabled = false;
                 boardSlot.AnotherMethod();
                 CShufflerP1.ShuffleCards();
+                StopCoroutine(TurnBtnActive(0.0f));
+                StopCoroutine(PhaseBtnActive(0.0f));
                 Scene currentScene = SceneManager.GetActiveScene();
 
                 if (currentScene.name == "SampleScene")

@@ -69,7 +69,12 @@ public class DisplayCard2 : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragH
     GameObject[] player2;
 
     public List<Transform> MoveBoardSlots = new List<Transform>();
-    
+
+    public GameObject discardpile;
+    public Animator discaranimator;
+    public AudioClip discardedClip;
+    public AudioSource src;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -92,8 +97,12 @@ public class DisplayCard2 : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragH
         DisCard = false;
         canMove = true;
 
-        carddid = this.GetComponent<PhotonView>().ViewID;
-        PhotonNetwork.AddCallbackTarget(this);
+        Scene cs = SceneManager.GetActiveScene();
+        if (cs.name == "SampleScene") 
+        {
+            carddid = this.GetComponent<PhotonView>().ViewID;
+            PhotonNetwork.AddCallbackTarget(this);
+        }
     }
 
     public List<Transform> AdjacentBSlotsAvailable()
@@ -185,6 +194,27 @@ public class DisplayCard2 : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragH
         {
             carddBackImage.enabled = false;
         }
+    }
+
+    [PunRPC]
+    public void SyncCardDiscard(int cardViewID)
+    {
+        PhotonView cardView = PhotonView.Find(cardViewID);
+        if (cardView != null)
+        {
+            Transform discarcard = cardView.transform;
+            discarcard.SetParent(discardpile.transform);
+
+            // Optionally, trigger any animations or effects on the Client side
+            discaranimator.SetBool("isDiscard", true);
+            DiscardSound();
+        }
+    }
+
+    public void DiscardSound()
+    {
+        src.clip = discardedClip;
+        src.Play();
     }
 
     public void OnBeginDrag(PointerEventData eventData)
