@@ -69,7 +69,12 @@ public class DisplayCard : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragHa
     GameObject[] player1;
 
     public List<Transform> MoveBoardSlots = new List<Transform>();
-    
+
+    public GameObject discardpile2;
+    public Animator animator2;
+    public AudioClip discardedClip;
+    public AudioSource src;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -606,6 +611,42 @@ public class DisplayCard : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragHa
         {
             cardBackImage.enabled = false;
         }
+    }
+
+    [PunRPC]
+    public void SyncCardDiscard(int cardViewID)
+    {
+        PhotonView cardView = PhotonView.Find(cardViewID);
+        if (cardView != null)
+        {
+            Transform discarcard = cardView.transform;
+            discarcard.SetParent(discardpile2.transform);
+
+            // Optionally, trigger any animations or effects on the Client side
+            animator2.SetBool("isDiscarded", true);
+            DiscardSound();
+        }
+    }
+
+    [PunRPC]
+    public void SyncCardPlacement(int boardSlotViewID)
+    {
+        PhotonView boardSlotPhotonView = PhotonView.Find(boardSlotViewID);
+        if (boardSlotPhotonView != null)
+        {
+            Transform boardSlotTransform = boardSlotPhotonView.transform;
+            transform.SetParent(boardSlotTransform);
+            transform.localPosition = Vector3.zero;
+            GetComponent<CanvasGroup>().blocksRaycasts = true;
+           // photonView.RPC("DisableCardBack2RPC", RpcTarget.All);
+            // Add any other code that needs to run on placement
+        }
+    }
+
+    public void DiscardSound()
+    {
+        src.clip = discardedClip;
+        src.Play();
     }
 
 

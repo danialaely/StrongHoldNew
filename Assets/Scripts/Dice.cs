@@ -210,62 +210,7 @@ public class Dice : MonoBehaviourPunCallbacks
                 bslot.energyText.text = val.ToString();
                 Debug.Log("Value:"+val);
                 
-                if (val == 6)
-                {
-                    bslot.coinP1img8.SetActive(false);
-                    bslot.coinP1img7.SetActive(false);
-                }
-                if (val == 5)
-                {
-                    bslot.coinP1img8.SetActive(false);
-                    bslot.coinP1img7.SetActive(false);
-                    bslot.coinP1img6.SetActive(false);
-                }
-                if (val == 4)
-                {
-                    bslot.coinP1img8.SetActive(false);
-                    bslot.coinP1img7.SetActive(false);
-                    bslot.coinP1img6.SetActive(false);
-                    bslot.coinP1img5.SetActive(false);
-                }
-                if (val == 3)
-                {
-                    bslot.coinP1img8.SetActive(false);
-                    bslot.coinP1img7.SetActive(false);
-                    bslot.coinP1img6.SetActive(false);
-                    bslot.coinP1img5.SetActive(false);
-                    bslot.coinP1img4.SetActive(false);
-                }
-                if (val == 2)
-                {
-                    bslot.coinP1img8.SetActive(false);
-                    bslot.coinP1img7.SetActive(false);
-                    bslot.coinP1img6.SetActive(false);
-                    bslot.coinP1img5.SetActive(false);
-                    bslot.coinP1img4.SetActive(false);
-                    bslot.coinP1img3.SetActive(false);
-                }
-                if (val == 1)
-                {
-                    bslot.coinP1img8.SetActive(false);
-                    bslot.coinP1img7.SetActive(false);
-                    bslot.coinP1img6.SetActive(false);
-                    bslot.coinP1img5.SetActive(false);
-                    bslot.coinP1img4.SetActive(false);
-                    bslot.coinP1img3.SetActive(false);
-                    bslot.coinP1img2.SetActive(false);
-                }
-                if (val == 0)
-                {
-                    bslot.coinP1img8.SetActive(false);
-                    bslot.coinP1img7.SetActive(false);
-                    bslot.coinP1img6.SetActive(false);
-                    bslot.coinP1img5.SetActive(false);
-                    bslot.coinP1img4.SetActive(false);
-                    bslot.coinP1img3.SetActive(false);
-                    bslot.coinP1img2.SetActive(false);
-                    bslot.coinP1img.SetActive(false);
-                }
+                UpdateP1CoinImages(val, bslot);
 
             }
             
@@ -283,15 +228,25 @@ public class Dice : MonoBehaviourPunCallbacks
                             //  Debug.Log("Discard Value:"+ defenderCard.GetDiscard());
                             //Destroy(defenderCard.gameObject);
                             //defenderCard.transform.position += new Vector3(600f,-300f,0f);
+                            if (currentScene.name == "SampleScene")
+                            {
+                                if (defenderCard.photonView.Owner != PhotonNetwork.LocalPlayer) {defenderCard.photonView.RequestOwnership();}
+                            }
+
                             discaranimator.SetBool("isDiscard", true);
                             Transform discarcard = defenderCard.transform;
                             discarcard.SetParent(discardpile.transform);
-                            btnTurn.CardPlacedToBoard.Remove(defenderCard.gameObject);
+                            if (currentScene.name == "AI")
+                            {
+                                btnTurn.CardPlacedToBoard.Remove(defenderCard.gameObject);
+                            }
                             defenderCard.OnPtClc(); //MADE CHANGES HERE
                             DiscardSound();
 
-                          //  healthValStP2 -= 2.5f;
-                          //  SHoldHealthP2.text = healthValStP2.ToString();
+                            //  healthValStP2 -= 2.5f;
+                            //  SHoldHealthP2.text = healthValStP2.ToString();
+                            // Notify other players about the discard action
+                            photonView.RPC("SyncCardDiscard", RpcTarget.Others, defenderCard.photonView.ViewID);
 
                         }
                         else if ((GetDice() + defenderCard.GetP1Power()) > ((GetDice2()) + defenderCard.GetP2Power()))
@@ -302,10 +257,7 @@ public class Dice : MonoBehaviourPunCallbacks
                             // Request ownership before moving the card
                             if (currentScene.name == "SampleScene") 
                             {
-                                if (defenderCard.photonView.Owner != PhotonNetwork.LocalPlayer)
-                                {
-                                    defenderCard.photonView.RequestOwnership();
-                                }
+                                if (defenderCard.photonView.Owner != PhotonNetwork.LocalPlayer) {defenderCard.photonView.RequestOwnership();}
                             }
 
                             discaranimator.SetBool("isDiscard", true);
@@ -333,62 +285,7 @@ public class Dice : MonoBehaviourPunCallbacks
                             value -= 1;
                             BoardSlot.SetCurrentEnergyP2(value); //czczczczczczc
 
-                            if (value == 6)
-                            {
-                                bslot.coinP2img8.SetActive(false);
-                                bslot.coinP2img7.SetActive(false);
-                            }
-                            if (value == 5)
-                            {
-                                bslot.coinP2img8.SetActive(false);
-                                bslot.coinP2img7.SetActive(false);
-                                bslot.coinP2img6.SetActive(false);
-                            }
-                            if (value == 4)
-                            {
-                                bslot.coinP2img8.SetActive(false);
-                                bslot.coinP2img7.SetActive(false);
-                                bslot.coinP2img6.SetActive(false);
-                                bslot.coinP2img5.SetActive(false);
-                            }
-                            if (value == 3)
-                            {
-                                bslot.coinP2img8.SetActive(false);
-                                bslot.coinP2img7.SetActive(false);
-                                bslot.coinP2img6.SetActive(false);
-                                bslot.coinP2img5.SetActive(false);
-                                bslot.coinP2img4.SetActive(false);
-                            }
-                            if (value == 2)
-                            {
-                                bslot.coinP2img8.SetActive(false);
-                                bslot.coinP2img7.SetActive(false);
-                                bslot.coinP2img6.SetActive(false);
-                                bslot.coinP2img5.SetActive(false);
-                                bslot.coinP2img4.SetActive(false);
-                                bslot.coinP2img3.SetActive(false);
-                            }
-                            if (value == 1)
-                            {
-                                bslot.coinP2img8.SetActive(false);
-                                bslot.coinP2img7.SetActive(false);
-                                bslot.coinP2img6.SetActive(false);
-                                bslot.coinP2img5.SetActive(false);
-                                bslot.coinP2img4.SetActive(false);
-                                bslot.coinP2img3.SetActive(false);
-                                bslot.coinP2img2.SetActive(false);
-                            }
-                            if (value == 0)
-                            {
-                                bslot.coinP2img8.SetActive(false);
-                                bslot.coinP2img7.SetActive(false);
-                                bslot.coinP2img6.SetActive(false);
-                                bslot.coinP2img5.SetActive(false);
-                                bslot.coinP2img4.SetActive(false);
-                                bslot.coinP2img3.SetActive(false);
-                                bslot.coinP2img2.SetActive(false);
-                                bslot.coinP2img.SetActive(false);
-                            }
+                            UpdateP2CoinImages(value, bslot);
 
                             DiceSound();
                             StartCoroutine(RollAndDiscard());
@@ -409,14 +306,21 @@ public class Dice : MonoBehaviourPunCallbacks
                                     if ((GetDice() + defenderCard.GetP1Power()) < ((GetDice2()) + defenderCard.GetP2Power()))
                                     {
                                         Debug.Log("Counter Attacked Succeeded");
+
+                                        if (currentScene.name == "SampleScene")
+                                        {
+                                            if (atcCard.photonView.Owner != PhotonNetwork.LocalPlayer) { atcCard.photonView.RequestOwnership(); }
+                                           // defenderCard.OnPtClc(); //MADE CHANGES HERE
+                                        }
                                         animator2.SetBool("isDiscarded",true);
                                         Transform discarded = atcCard.transform;
                                         discarded.SetParent(discardpile2.transform);
                                         atcCard.OnPtcClk();
                                         DiscardSound();
-
-                                     //   healthValStP1 -= 2.5f;
-                                     //   SHoldHealthP1.text = healthValStP1.ToString();
+                                        
+                                        photonView.RPC("SyncCardDiscard", RpcTarget.Others, atcCard.photonView.ViewID);
+                                        //   healthValStP1 -= 2.5f;
+                                        //   SHoldHealthP1.text = healthValStP1.ToString();
                                     }
                                     else { Debug.Log("Counter Attacked Failed"); }
                                 }
@@ -477,62 +381,7 @@ public class Dice : MonoBehaviourPunCallbacks
                 bslot.energyTextP2.text = value.ToString();
                 Debug.Log("Value:" + value);
 
-                if (value == 6)
-                {
-                    bslot.coinP2img8.SetActive(false);
-                    bslot.coinP2img7.SetActive(false);
-                }
-                if (value == 5)
-                {
-                    bslot.coinP2img8.SetActive(false);
-                    bslot.coinP2img7.SetActive(false);
-                    bslot.coinP2img6.SetActive(false);
-                }
-                if (value == 4)
-                {
-                    bslot.coinP2img8.SetActive(false);
-                    bslot.coinP2img7.SetActive(false);
-                    bslot.coinP2img6.SetActive(false);
-                    bslot.coinP2img5.SetActive(false);
-                }
-                if (value == 3)
-                {
-                    bslot.coinP2img8.SetActive(false);
-                    bslot.coinP2img7.SetActive(false);
-                    bslot.coinP2img6.SetActive(false);
-                    bslot.coinP2img5.SetActive(false);
-                    bslot.coinP2img4.SetActive(false);
-                }
-                if (value == 2)
-                {
-                    bslot.coinP2img8.SetActive(false);
-                    bslot.coinP2img7.SetActive(false);
-                    bslot.coinP2img6.SetActive(false);
-                    bslot.coinP2img5.SetActive(false);
-                    bslot.coinP2img4.SetActive(false);
-                    bslot.coinP2img3.SetActive(false);
-                }
-                if (value == 1)
-                {
-                    bslot.coinP2img8.SetActive(false);
-                    bslot.coinP2img7.SetActive(false);
-                    bslot.coinP2img6.SetActive(false);
-                    bslot.coinP2img5.SetActive(false);
-                    bslot.coinP2img4.SetActive(false);
-                    bslot.coinP2img3.SetActive(false);
-                    bslot.coinP2img2.SetActive(false);
-                }
-                if (value == 0)
-                {
-                    bslot.coinP2img8.SetActive(false);
-                    bslot.coinP2img7.SetActive(false);
-                    bslot.coinP2img6.SetActive(false);
-                    bslot.coinP2img5.SetActive(false);
-                    bslot.coinP2img4.SetActive(false);
-                    bslot.coinP2img3.SetActive(false);
-                    bslot.coinP2img2.SetActive(false);
-                    bslot.coinP2img.SetActive(false);
-                }
+                UpdateP2CoinImages(value, bslot);
 
             }
 
@@ -549,18 +398,21 @@ public class Dice : MonoBehaviourPunCallbacks
                         if ((GetDice() + defcard.Getp2Power()) > 2 * ((GetDice2()) + defcard.Getp1Power()))
                         {
                             Debug.Log("Attack is more than twice the defence");
+                            if (currentScene.name == "SampleScene") 
+                            {
+                                if (defcard.photonView.Owner != PhotonNetwork.LocalPlayer) { defcard.photonView.RequestOwnership(); }
+                                defcard.OnPtcClk(); //MADE CHANGES HERE
+                            }
+
                             animator2.SetBool("isDiscarded", true);
                             Transform discardCard = defcard.transform;
                             discardCard.SetParent(discardpile2.transform);
-                            if (currentScene.name == "SampleScene") 
-                            {
-                                defcard.OnPtcClk(); //MADE CHANGES HERE
-                            }
                             // discardCard.GetComponent<DisplayCard>().SetSelected(false);
                             DiscardSound();
 
-                        //    healthValStP1 -= 2.5f;
-                        //    SHoldHealthP1.text = healthValStP1.ToString();
+                            photonView.RPC("SyncCardDiscard", RpcTarget.Others, defcard.photonView.ViewID);
+                            //    healthValStP1 -= 2.5f;
+                            //    SHoldHealthP1.text = healthValStP1.ToString();
                         }
                         else if ((GetDice() + defcard.Getp2Power()) > ((GetDice2()) + defcard.Getp1Power()))
                         {
@@ -568,18 +420,23 @@ public class Dice : MonoBehaviourPunCallbacks
                             Debug.Log("DEFENSE Dice:" + GetDice2() + "+" + "Attack:" + defcard.Getp1Power() + "=" + (GetDice2() + defcard.Getp1Power()));
                             // Debug.Log("Discard Value:" +defcard.GetDiscard());
                             // Destroy(defcard.gameObject);
+                            if (currentScene.name == "SampleScene")
+                            { 
+                               if (defcard.photonView.Owner != PhotonNetwork.LocalPlayer) {defcard.photonView.RequestOwnership();}
+                               defcard.OnPtcClk(); //MADE CHANGES HERE
+                            }
+                            
                             animator2.SetBool("isDiscarded", true);
                             Transform discardCard = defcard.transform;
                             discardCard.SetParent(discardpile2.transform);
-                            if (currentScene.name == "SampleScene")
-                            { 
-                                defcard.OnPtcClk(); //MADE CHANGES HERE
-                            }
                             //discardCard.GetComponent<DisplayCard>().SetSelected(false);
                             DiscardSound();
 
-                        //    healthValStP1 -= 2.5f;
-                        //    SHoldHealthP1.text = healthValStP1.ToString();
+                            //    healthValStP1 -= 2.5f;
+                            //    SHoldHealthP1.text = healthValStP1.ToString();
+                            // Notify other players about the discard action
+                            photonView.RPC("SyncCardDiscard", RpcTarget.Others, defcard.photonView.ViewID);
+
                             CanAttackP2 = false;
                             StartCoroutine(CanAttackNowP2(10.0f));
                         }
@@ -593,62 +450,7 @@ public class Dice : MonoBehaviourPunCallbacks
                             val -= 1;
                             BoardSlot.SetCurrentEnergy(val); //czczczczczczc
 
-                            if (val == 6)
-                            {
-                                bslot.coinP1img8.SetActive(false);
-                                bslot.coinP1img7.SetActive(false);
-                            }
-                            if (val == 5)
-                            {
-                                bslot.coinP1img8.SetActive(false);
-                                bslot.coinP1img7.SetActive(false);
-                                bslot.coinP1img6.SetActive(false);
-                            }
-                            if (val == 4)
-                            {
-                                bslot.coinP1img8.SetActive(false);
-                                bslot.coinP1img7.SetActive(false);
-                                bslot.coinP1img6.SetActive(false);
-                                bslot.coinP1img5.SetActive(false);
-                            }
-                            if (val == 3)
-                            {
-                                bslot.coinP1img8.SetActive(false);
-                                bslot.coinP1img7.SetActive(false);
-                                bslot.coinP1img6.SetActive(false);
-                                bslot.coinP1img5.SetActive(false);
-                                bslot.coinP1img4.SetActive(false);
-                            }
-                            if (val == 2)
-                            {
-                                bslot.coinP1img8.SetActive(false);
-                                bslot.coinP1img7.SetActive(false);
-                                bslot.coinP1img6.SetActive(false);
-                                bslot.coinP1img5.SetActive(false);
-                                bslot.coinP1img4.SetActive(false);
-                                bslot.coinP1img3.SetActive(false);
-                            }
-                            if (val == 1)
-                            {
-                                bslot.coinP1img8.SetActive(false);
-                                bslot.coinP1img7.SetActive(false);
-                                bslot.coinP1img6.SetActive(false);
-                                bslot.coinP1img5.SetActive(false);
-                                bslot.coinP1img4.SetActive(false);
-                                bslot.coinP1img3.SetActive(false);
-                                bslot.coinP1img2.SetActive(false);
-                            }
-                            if (val == 0)
-                            {
-                                bslot.coinP1img8.SetActive(false);
-                                bslot.coinP1img7.SetActive(false);
-                                bslot.coinP1img6.SetActive(false);
-                                bslot.coinP1img5.SetActive(false);
-                                bslot.coinP1img4.SetActive(false);
-                                bslot.coinP1img3.SetActive(false);
-                                bslot.coinP1img2.SetActive(false);
-                                bslot.coinP1img.SetActive(false);
-                            }
+                            UpdateP1CoinImages(val, bslot);
 
                             StartCoroutine(RollAndDiscard());
                             CounterAttackinP2 = true;
@@ -668,18 +470,23 @@ public class Dice : MonoBehaviourPunCallbacks
                                     if ((GetDice() + defcard.Getp2Power()) < ((GetDice2()) + defcard.Getp1Power()))
                                     {
                                         Debug.Log("Counter Attacked Succeeded");
+
                                         discaranimator.SetBool("isDiscard", true);
                                         Transform discards = atcCard.transform;
                                         discards.SetParent(discardpile.transform);
                                         if (currentScene.name == "SampleScene")
                                         { 
+                                            if (atcCard.photonView.Owner != PhotonNetwork.LocalPlayer) { atcCard.photonView.RequestOwnership(); }
                                             atcCard.OnPtClc();
                                         }
                                         Debug.Log("Discard Pile Name:"+discardpile.name);
                                         DiscardSound();
 
-                                     //   healthValStP2 -= 2.5f;
-                                     //   SHoldHealthP2.text = healthValStP2.ToString();
+                                        // Notify other players about the discard action
+                                        photonView.RPC("SyncCardDiscard", RpcTarget.Others, atcCard.photonView.ViewID);
+
+                                        //   healthValStP2 -= 2.5f;
+                                        //   SHoldHealthP2.text = healthValStP2.ToString();
                                     }
                                     else { Debug.Log("Counter Attacked Failed"); }
                                 }
@@ -749,5 +556,31 @@ public class Dice : MonoBehaviourPunCallbacks
     {
         yield return new WaitForSeconds(delay);
         animator2.SetBool("isDiscarded", false);
+    }
+
+    public void UpdateP1CoinImages(int val, BoardSlot bslot)
+    {
+        GameObject[] coinImages = new GameObject[] {
+        bslot.coinP1img8, bslot.coinP1img7, bslot.coinP1img6, bslot.coinP1img5,
+        bslot.coinP1img4, bslot.coinP1img3, bslot.coinP1img2, bslot.coinP1img
+    };
+
+        for (int i = 7; i >= val; i--)
+        {
+            coinImages[i].SetActive(false);
+        }
+    }
+
+    public void UpdateP2CoinImages(int value, BoardSlot bslot)
+    {
+        GameObject[] coinP2Images = new GameObject[] {
+        bslot.coinP2img8, bslot.coinP2img7, bslot.coinP2img6, bslot.coinP2img5,
+        bslot.coinP2img4, bslot.coinP2img3, bslot.coinP2img2, bslot.coinP2img
+    };
+
+        for (int i = 7; i >= value; i--)
+        {
+            coinP2Images[i].SetActive(false);
+        }
     }
 }

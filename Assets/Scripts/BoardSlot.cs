@@ -233,6 +233,8 @@ public class BoardSlot : MonoBehaviourPunCallbacks, IDropHandler
         }
         else
         {
+            Debug.Log("Card:"+card.gameObject.name);
+            Debug.Log("Bslot ChildCount:"+transform.childCount);
             Debug.LogError("Invalid card detected.");
         }
     }
@@ -327,6 +329,10 @@ public class BoardSlot : MonoBehaviourPunCallbacks, IDropHandler
         card.GetComponent<CanvasGroup>().blocksRaycasts = true;
         card.photonView.RPC("DisableCardBack2RPC", RpcTarget.All);
         GetPlacementSound();
+
+        // Sync the card placement with other clients
+        int boardSlotViewID = photonView.ViewID;
+        card.photonView.RPC("SyncCardPlacement", RpcTarget.Others, boardSlotViewID);
     }
 
     private void PlaceCardP2(DisplayCard2 cardd)
@@ -342,6 +348,10 @@ public class BoardSlot : MonoBehaviourPunCallbacks, IDropHandler
         }
         cardd.photonView.RPC("DisableCardBackRPC", RpcTarget.All);
         GetPlacementSound();
+
+        // Sync the card placement with other clients
+        int boardSlotViewID = photonView.ViewID;
+        cardd.photonView.RPC("SyncCardPlacement2", RpcTarget.Others, boardSlotViewID);
     }
 
     public void SpendOnAttack() 

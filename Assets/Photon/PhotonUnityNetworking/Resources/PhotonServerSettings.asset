@@ -46,6 +46,8 @@ MonoBehaviour:
   - DisableCardBackRPC
   - DisableCardBack2RPC
   - SyncCardDiscard
+  - SyncCardPlacement
+  - SyncCardPlacement2
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

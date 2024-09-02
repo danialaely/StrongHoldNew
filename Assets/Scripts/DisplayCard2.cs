@@ -211,6 +211,21 @@ public class DisplayCard2 : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragH
         }
     }
 
+    [PunRPC]
+    public void SyncCardPlacement2(int boardSlotViewID)
+    {
+        PhotonView boardSlotPhotonView = PhotonView.Find(boardSlotViewID);
+        if (boardSlotPhotonView != null)
+        {
+            Transform boardSlotTransform = boardSlotPhotonView.transform;
+            transform.SetParent(boardSlotTransform);
+            transform.localPosition = Vector3.zero;
+            GetComponent<CanvasGroup>().blocksRaycasts = true;
+            // photonView.RPC("DisableCardBack2RPC", RpcTarget.All);
+            // Add any other code that needs to run on placement
+        }
+    }
+
     public void DiscardSound()
     {
         src.clip = discardedClip;

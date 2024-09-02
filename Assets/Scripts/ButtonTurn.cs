@@ -708,8 +708,8 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
             StartCoroutine(ChangeAIPhaseToAttack(6.0f));
             StartCoroutine(Attacking(6.0f));
                     //StartCoroutine(TurnBtnActive(12.0f));
-                    StartCoroutine(TurnBtnActive(21.0f));
-                    StartCoroutine(PhaseBtnActive(21.0f));
+            StartCoroutine(TurnBtnActive(21.0f));
+            StartCoroutine(PhaseBtnActive(21.0f));
             int val = BoardSlot.GetCurrentEnergyP2();
             if (val > 2)
             {
@@ -847,10 +847,12 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
             if (PhotonNetwork.IsMasterClient)
             {
                 turnButton.SetActive(true);
+                phaseButton.SetActive(true);
             }
             else
             {
                 turnButton.SetActive(false);
+                phaseButton.SetActive(false);
             }
 
         }
@@ -877,10 +879,12 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
             if (PhotonNetwork.IsMasterClient)
             {
                 turnButton.SetActive(false);
+                phaseButton.SetActive(false);
             }
             else
             {
                 turnButton.SetActive(true);
+                phaseButton.SetActive(true);
             }
         }
     }
