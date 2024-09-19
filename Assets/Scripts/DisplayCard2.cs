@@ -228,8 +228,9 @@ public class DisplayCard2 : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragH
 
     public void DiscardSound()
     {
-        src.clip = discardedClip;
-        src.Play();
+        // src.clip = discardedClip;
+        // src.Play();
+        AudioManager.instance.PlaySFX("Discarded");
     }
 
     public void OnBeginDrag(PointerEventData eventData)

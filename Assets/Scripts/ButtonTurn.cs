@@ -83,6 +83,9 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
 
     private const byte TurnChangeEventCode = 1;
     public const byte ResetTimerEventCode = 2;
+    private const byte ReadyPanelDeactivateEventCode = 6; // Use a unique event code
+
+    public GameObject ReadyPanel;
 
     private void Start()
     {
@@ -126,7 +129,12 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
         if (PhotonNetwork.IsMasterClient)
         {
             //  OnTurnButtonClick();
+            ReadyPanel.SetActive(true);
             StartCoroutine(StartingtheGame(5.0f));
+        }
+        else if (!PhotonNetwork.IsMasterClient && cs.name == "SampleScene") 
+        {
+            ReadyPanel.transform.rotation = Quaternion.Euler(0,0,180);
         }
 
     }
@@ -741,6 +749,14 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
         if (cs.name == "SampleScene")
         {
             Debug.Log("Turn button clicked, raising event");
+            ReadyPanel.SetActive(false);
+
+            // Raise event to deactivate ReadyPanel on client
+            RaiseEventOptions panelEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
+            SendOptions panelSendOptions = new SendOptions { Reliability = true };
+
+            // Raising the event with no content since we are only signaling the action
+            PhotonNetwork.RaiseEvent(ReadyPanelDeactivateEventCode, null, panelEventOptions, panelSendOptions);
 
             // Toggle the turn
             isPlayer1Turn = !isPlayer1Turn;
@@ -1030,7 +1046,8 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
 
     public void OnEvent(EventData photonEvent)
     {
-        if (photonEvent.Code == TurnChangeEventCode)
+        byte eventCode = photonEvent.Code;
+        if (eventCode == TurnChangeEventCode)
         {
             object[] data = (object[])photonEvent.CustomData;
             bool newIsPlayer1Turn = (bool)data[0];
@@ -1039,13 +1056,19 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
             UpdateTurn(newIsPlayer1Turn);
         }
 
-        if (photonEvent.Code == ResetTimerEventCode)
+        if (eventCode == ResetTimerEventCode)
         {
             object[] data = (object[])photonEvent.CustomData;
             float newTimerValue = (float)data[0];
 
             // Reset the client's timer and restart the coroutine
             ResetClientTimer(newTimerValue);
+        }
+
+        if (eventCode == ReadyPanelDeactivateEventCode)
+        {
+            // Deactivate ReadyPanel on the client side
+            ReadyPanel.SetActive(false);
         }
     }
 

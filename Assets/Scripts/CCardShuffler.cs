@@ -201,8 +201,9 @@ public class CCardShuffler : MonoBehaviour
 
     public void AttackSound()
     {
-        src.clip = swordClip;
-        src.Play();
+        //src.clip = swordClip;
+        //src.Play();
+        AudioManager.instance.PlaySFX("Sword");
     }
 
     private IEnumerator CardsDelay(float delay)

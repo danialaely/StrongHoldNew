@@ -142,8 +142,9 @@ public class CardShuffler : MonoBehaviourPunCallbacks
 
     public void AttackSound()
     {
-        src.clip = swordClip;
-        src.Play();
+        //src.clip = swordClip;
+        //src.Play();
+        AudioManager.instance.PlaySFX("Sword");
     }
 
     private IEnumerator CardsDelay(float delay)

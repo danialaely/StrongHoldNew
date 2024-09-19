@@ -616,8 +616,9 @@ public class BoardSlot : MonoBehaviourPunCallbacks, IDropHandler
 
     public void GetPlacementSound()
     {
-        src.clip = cardPlacementClip;
-        src.Play();
+        // src.clip = cardPlacementClip;
+        // src.Play();
+        AudioManager.instance.PlaySFX("Place");
     }
 
    

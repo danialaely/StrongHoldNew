@@ -536,14 +536,16 @@ public class Dice : MonoBehaviourPunCallbacks
 
     public void DiceSound() 
     {
-        src.clip = diceClip;
-        src.Play();
+        // src.clip = diceClip;
+        // src.Play();
+        AudioManager.instance.PlaySFX("Dice");
     }
 
     public void DiscardSound()
     {
-        src.clip = discardedClip;
-        src.Play();
+        //src.clip = discardedClip;
+        //src.Play();
+        AudioManager.instance.PlaySFX("Discarded");
     }
 
     private IEnumerator DiscardAnim(float delay) 

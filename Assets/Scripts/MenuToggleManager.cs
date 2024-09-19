@@ -22,6 +22,7 @@ public class MenuToggleManager : MonoBehaviour
         HardToggle.onValueChanged.AddListener(delegate { ToggleValueChanged(); });
 
         ActivateMyPanel(PlayerNamePanel.name);
+        AudioManager.instance.PlayMusic("SignUpAudio");
     }
 
     public void ActiveToggle()
@@ -61,6 +62,7 @@ public class MenuToggleManager : MonoBehaviour
         {
             //Debug.Log(name);
             ActivateMyPanel(WelcomePanel.name);
+            AudioManager.instance.PlayMusic("MenuAudio");
         }
         else 
         {

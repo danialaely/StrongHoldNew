@@ -216,13 +216,15 @@ public class Zoom : MonoBehaviour
     {
         if (gm.currentPhase == GamePhase.Draw)
         {
-            src.clip = shuffleClip;
-            src.Play();
+            //src.clip = shuffleClip;
+            //src.Play();
+            AudioManager.instance.PlaySFX("Shuffle_fast");
         }
         if (gm.currentPhase == GamePhase.Play || gm.currentPhase == GamePhase.Move)
         {
-            src.clip = errorClip;
-            src.Play();
+            //src.clip = errorClip;
+            //src.Play();
+            AudioManager.instance.PlaySFX("Error");
         }
     }
 

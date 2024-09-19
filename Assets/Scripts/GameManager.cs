@@ -30,8 +30,9 @@ public class GameManager : MonoBehaviour
 
     public void ErrorSound() 
     {
-        src.clip = errorClip;
-        src.Play();
+        // src.clip = errorClip;
+        // src.Play();
+        AudioManager.instance.PlaySFX("Error");
     }
 
     public void OnTurnButtonClick()

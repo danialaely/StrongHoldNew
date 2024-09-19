@@ -16,6 +16,8 @@ public class SceneM : MonoBehaviourPunCallbacks
     public GameObject ConnectingPanel;
     public GameObject CreateRoomPanel;
     public GameObject RoomListPanel;
+    public GameObject SettingsPanel;
+    public GameObject BackPanel;
 
     public TMP_InputField roomNameText;
 
@@ -57,6 +59,7 @@ public class SceneM : MonoBehaviourPunCallbacks
         if (dd.value == 1) 
         {
             SceneManager.LoadScene("AI");
+            AudioManager.instance.StopMusic();
         }
 
     }
@@ -76,6 +79,18 @@ public class SceneM : MonoBehaviourPunCallbacks
     public void OnCancelClick() 
     {
         ActivateMyPanel(LobbyPanel.name);
+    }
+
+    public void SettingsClick() 
+    {
+        ActivateMyPanel(SettingsPanel.name);
+        AudioManager.instance.PlayMusic("SettingsAudio");
+    }
+
+    public void BackClick() 
+    {
+        ActivateMyPanel(BackPanel.name);
+        AudioManager.instance.PlayMusic("MenuAudio");
     }
 
     public void RoomListBtnClicked() 
@@ -112,6 +127,8 @@ public class SceneM : MonoBehaviourPunCallbacks
         CreateRoomPanel.SetActive(panelName.Equals(CreateRoomPanel.name));
         RoomListPanel.SetActive(panelName.Equals(RoomListPanel.name));
         InsideRoomPanel.SetActive(panelName.Equals(InsideRoomPanel.name));
+        SettingsPanel.SetActive(panelName.Equals(SettingsPanel.name));
+        BackPanel.SetActive(panelName.Equals(BackPanel.name));
     }
 
     public void RoomJoinFromList(string roomName) 
@@ -141,7 +158,7 @@ public class SceneM : MonoBehaviourPunCallbacks
         if (PhotonNetwork.IsMasterClient) 
         {
             PhotonNetwork.LoadLevel("SampleScene");
-           
+            AudioManager.instance.StopMusic();
         }
     }
 
