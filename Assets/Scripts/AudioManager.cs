@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Video;
 
 public class AudioManager : MonoBehaviour
 {
@@ -9,6 +10,11 @@ public class AudioManager : MonoBehaviour
 
     public MSound[] musicsounds, sfxSounds;
     public AudioSource musicSource, sfxSource;
+
+    public VideoPlayer videoPlayer; // Reference to the VideoPlayer component
+    public VideoClip signUpVideo;   // Video clip for sign-up
+    public VideoClip menuVideo;     // Video clip for menu
+    public VideoClip settingsVideo; // Video clip for settings
 
     public void Awake()
     {
@@ -89,6 +95,37 @@ public class AudioManager : MonoBehaviour
     public float GetSFXVolume()
     {
         return sfxSource.volume; // Return the current volume of the AudioSource
+    }
+
+
+    public void PlaySignUpVideo()
+    {
+        PlayVideo(signUpVideo);
+    }
+
+    public void PlayMenuVideo()
+    {
+        PlayVideo(menuVideo);
+    }
+
+    public void PlaySettingsVideo()
+    {
+        PlayVideo(settingsVideo);
+    }
+
+    // General method to play any video
+    private void PlayVideo(VideoClip clip)
+    {
+        videoPlayer.clip = clip;  // Assign the video clip
+        videoPlayer.Play();       // Play the video
+    }
+
+    public void StopVideo()
+    {
+        if (videoPlayer.isPlaying)
+        {
+            videoPlayer.Stop();   // Stop the video
+        }
     }
 
 }

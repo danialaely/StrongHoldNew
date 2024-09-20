@@ -23,6 +23,7 @@ public class MenuToggleManager : MonoBehaviour
 
         ActivateMyPanel(PlayerNamePanel.name);
         AudioManager.instance.PlayMusic("SignUpAudio");
+        AudioManager.instance.PlaySignUpVideo();
     }
 
     public void ActiveToggle()
@@ -63,6 +64,7 @@ public class MenuToggleManager : MonoBehaviour
             //Debug.Log(name);
             ActivateMyPanel(WelcomePanel.name);
             AudioManager.instance.PlayMusic("MenuAudio");
+            AudioManager.instance.PlayMenuVideo();
         }
         else 
         {

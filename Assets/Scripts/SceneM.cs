@@ -52,14 +52,16 @@ public class SceneM : MonoBehaviourPunCallbacks
         if (dd.value == 0) 
         {
             //SceneManager.LoadScene("SampleScene");
-            PhotonNetwork.LocalPlayer.NickName = menuToggleManager.GetUserName();
-            PhotonNetwork.ConnectUsingSettings();
-            ActivateMyPanel(ConnectingPanel.name);
+
+            //PhotonNetwork.LocalPlayer.NickName = menuToggleManager.GetUserName();
+            //PhotonNetwork.ConnectUsingSettings();
+          //  ActivateMyPanel(ConnectingPanel.name);
         }
         if (dd.value == 1) 
         {
             SceneManager.LoadScene("AI");
             AudioManager.instance.StopMusic();
+            AudioManager.instance.StopVideo();
         }
 
     }
@@ -85,12 +87,14 @@ public class SceneM : MonoBehaviourPunCallbacks
     {
         ActivateMyPanel(SettingsPanel.name);
         AudioManager.instance.PlayMusic("SettingsAudio");
+        AudioManager.instance.PlaySettingsVideo();
     }
 
     public void BackClick() 
     {
         ActivateMyPanel(BackPanel.name);
         AudioManager.instance.PlayMusic("MenuAudio");
+        AudioManager.instance.PlayMenuVideo();
     }
 
     public void RoomListBtnClicked() 
@@ -159,6 +163,7 @@ public class SceneM : MonoBehaviourPunCallbacks
         {
             PhotonNetwork.LoadLevel("SampleScene");
             AudioManager.instance.StopMusic();
+            AudioManager.instance.StopVideo();
         }
     }
 
