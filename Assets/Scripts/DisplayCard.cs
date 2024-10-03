@@ -75,6 +75,8 @@ public class DisplayCard : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragHa
     public AudioClip discardedClip;
     public AudioSource src;
 
+    public List<ShP2Card> allSHP2Cards;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -83,6 +85,8 @@ public class DisplayCard : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragHa
 
         player2 = GameObject.FindGameObjectsWithTag(tagToSearch);
         player1 = GameObject.FindGameObjectsWithTag(Movtag);
+
+        allSHP2Cards = new List<ShP2Card>(FindObjectsOfType<ShP2Card>());
 
         // Populate allDisplayCards with all instances of DisplayCard
         allDisplayCards = new List<DisplayCard>(FindObjectsOfType<DisplayCard>());
@@ -396,8 +400,15 @@ public class DisplayCard : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragHa
                         UnityEngine.UI.Image p2outerborder = p2.transform.Find("OuterBorder").GetComponent<Image>();
                         p2outerborder.color = Color.blue;
 
-                        adjacentCards.Add(p2);
-
+                        adjacentCards.Add(p2);  //if p2.gameobject=="SHCardP2" { foreach (STCard in StrongHoldCard) {  OuterBorder == Blue } }
+                        if (p2.gameObject.name == "SHCardP2") 
+                        {
+                            foreach (ShP2Card STCardP2 in allSHP2Cards) 
+                            {
+                                UnityEngine.UI.Image shp2outerborder = STCardP2.transform.Find("OuterBorder").GetComponent<Image>();
+                                shp2outerborder.color = Color.blue;
+                            }
+                        }
                     }
                 }
 
@@ -436,6 +447,15 @@ public class DisplayCard : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragHa
                         UnityEngine.UI.Image p2outerborder = p2.transform.Find("OuterBorder").GetComponent<Image>();
                         p2outerborder.color = Color.yellow; //FFFF00
                         adjacentCards.Clear();
+
+                        if (p2.gameObject.name == "SHCardP2")
+                        {
+                            foreach (ShP2Card STCardP2 in allSHP2Cards)
+                            {
+                                UnityEngine.UI.Image shp2outerborder = STCardP2.transform.Find("OuterBorder").GetComponent<Image>();
+                                shp2outerborder.color = Color.yellow;
+                            }
+                        }
 
                         // Check if DisplayCard2 component is attached
                         DisplayCard2 displayCard2 = p2.GetComponent<DisplayCard2>();

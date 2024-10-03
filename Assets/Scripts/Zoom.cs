@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class Zoom : MonoBehaviour
 {
@@ -27,13 +28,22 @@ public class Zoom : MonoBehaviour
 
     public GameManager gm;
 
+    public GameObject pausePanel;
+    private bool isPaused;
+
+    private void Start()
+    {
+        isPaused = false;
+        pausePanel.SetActive(false);
+    }
+
     //private Vector3 Origin;
-   // private Vector3 Difference;
+    // private Vector3 Difference;
     //private Vector3 ResetCamera;
 
-   // private bool drag = false;
+    // private bool drag = false;
 
-   // private bool stickToPos;
+    // private bool stickToPos;
 
     /*
     private void Start()
@@ -226,6 +236,27 @@ public class Zoom : MonoBehaviour
             //src.Play();
             AudioManager.instance.PlaySFX("Error");
         }
+    }
+
+    public void PauseResume() 
+    {
+        isPaused = !isPaused;
+        if (isPaused)
+        {
+            pausePanel.SetActive(true);
+            Time.timeScale = 0.0f;
+        }
+        else 
+        {
+            pausePanel.SetActive(false);
+            Time.timeScale = 1.0f;
+        }
+    }
+
+    public void MainMenu() 
+    {
+        AudioManager.instance.continuedFromGame = true;
+        SceneManager.LoadScene("Welcome");
     }
 
 }

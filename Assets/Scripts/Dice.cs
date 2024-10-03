@@ -42,8 +42,11 @@ public class Dice : MonoBehaviourPunCallbacks
     public bool CounterAttackinP1;
     public bool CounterAttackinP2;
 
-    public ShP1Card StrongHoldCardP1;
-    public ShP2Card StrongHoldCardP2;
+    //public ShP1Card StrongHoldCardP1;
+    
+    //public ShP2Card StrongHoldCardP2;
+    public List<ShP2Card> allSHP2Cards;
+    public List<ShP1Card> allSHP1Cards;
 
     public ButtonTurn btnTurn;
 
@@ -66,6 +69,9 @@ public class Dice : MonoBehaviourPunCallbacks
 
         allDpCards = new List<DisplayCard2>(FindObjectsOfType<DisplayCard2>());
         allDisplayCards = new List<DisplayCard>(FindObjectsOfType<DisplayCard>());
+        
+        allSHP2Cards = new List<ShP2Card>(FindObjectsOfType<ShP2Card>());
+        allSHP1Cards = new List<ShP1Card>(FindObjectsOfType<ShP1Card>());
 
         CanAttackP1 = true; 
         CanAttackP2 = true;
@@ -199,9 +205,10 @@ public class Dice : MonoBehaviourPunCallbacks
         Scene currentScene = SceneManager.GetActiveScene();
 
         bool isP1Turn = ButtonTurn.GetPlayerTurn();
-            if (isP1Turn && !CounterAttackinP1)
-            {//DisplayCard2
+        if (isP1Turn && !CounterAttackinP1)
+        {//DisplayCard2
              //  bslot.SpendOnAttack();
+            
             int val = BoardSlot.GetCurrentEnergy();
             if (val > 2) 
             {
@@ -214,7 +221,6 @@ public class Dice : MonoBehaviourPunCallbacks
 
             }
             
-
             foreach (DisplayCard2 defenderCard in allDpCards)
                 {
                     Debug.Log("Selected:"+defenderCard.isSelected);
@@ -329,43 +335,50 @@ public class Dice : MonoBehaviourPunCallbacks
                     }
                     }
                 }
-            if (StrongHoldCardP2.isSelected) 
+
+            foreach (ShP2Card StrongholdCardP2 in allSHP2Cards) 
             {
-                if (CanAttackP1) 
+                if (StrongholdCardP2.isSelected) 
                 {
-                    if ((GetDice() + StrongHoldCardP2.GetP1Power()) > ((GetDice2()) + StrongHoldCardP2.GetP2Power()))
+                    if (CanAttackP1) 
                     {
-                        Debug.Log("Attack Attack Attack");
-
-                        Debug.Log("ATTACKER Dice:" + GetDice() + "+" + "Attack:" + StrongHoldCardP2.GetP1Power() + "=" + (GetDice() + StrongHoldCardP2.GetP1Power()));
-                        Debug.Log("DEFENSE Dice:" + GetDice2() + "+" + "Attack:" + StrongHoldCardP2.GetP2Power() + "=" + (GetDice2() + StrongHoldCardP2.GetP2Power()));
-
-                        int newHealth = StrongHoldCardP2.GetCardHealth() - StrongHoldCardP2.GetP1Power();
-                        StrongHoldCardP2.SetSHealth(newHealth);
-                        StrongHoldCardP2.healthText.text = newHealth.ToString();
-                        Debug.Log("New StrongHealth:"+newHealth);
-
-                        CanAttackP1 = false;
-                        StartCoroutine(CanAttackNowP1(10.0f));
-
-                        if (StrongHoldCardP2.GetCardHealth() <=0 ) 
+                        if ((GetDice() + StrongholdCardP2.GetP1Power()) > ((GetDice2()) + StrongholdCardP2.GetP2Power()))
                         {
-                            Debug.Log("GAME OVER!, P1 Wins");
-                        //discaranimator.SetBool("isDiscard", true);
-                        // Transform discarcard = defenderCard.transform;
-                        //  discarcard.SetParent(discardpile.transform);
-                        //  DiscardSound();
+                            Debug.Log("Attack Attack Attack");
+
+                            Debug.Log("ATTACKER Dice:" + GetDice() + "+" + "Attack:" + StrongholdCardP2.GetP1Power() + "=" + (GetDice() + StrongholdCardP2.GetP1Power()));
+                            Debug.Log("DEFENSE Dice:" + GetDice2() + "+" + "Attack:" + StrongholdCardP2.GetP2Power() + "=" + (GetDice2() + StrongholdCardP2.GetP2Power()));
+
+                            int newHealth = StrongholdCardP2.GetCardHealth() - StrongholdCardP2.GetP1Power();
+
+                            foreach (ShP2Card SHP2C in allSHP2Cards) 
+                            {
+                                SHP2C.SetSHealth(newHealth);
+                                SHP2C.healthText.text = newHealth.ToString();
+                                Debug.Log("New StrongHealth:"+newHealth);
+                            }
+
+                            CanAttackP1 = false;
+                            StartCoroutine(CanAttackNowP1(10.0f));
+
+                            if (StrongholdCardP2.GetCardHealth() <=0 ) 
+                            {
+                                Debug.Log("GAME OVER!, P1 Wins");
+                             //discaranimator.SetBool("isDiscard", true);
+                             // Transform discarcard = defenderCard.transform;
+                             //  discarcard.SetParent(discardpile.transform);
+                             //  DiscardSound();
+                            }
+
+                             //  healthValStP2 -= 2.5f;
+                             //  SHoldHealthP2.text = healthValStP2.ToString();
                         }
-
-                        //  healthValStP2 -= 2.5f;
-                        //  SHoldHealthP2.text = healthValStP2.ToString();
-
                     }
                 }
             }
                 // discaranimator.SetBool("isDiscard", false);  make IEnumerator
                 StartCoroutine(DiscardAnim(2.0f));
-            }
+        }
             // isP1Turn = ButtonTurn.GetPlayerTurn() 
             // if(isP1Turn) then if(dp.isSelected == true) { Destroy(dp.gameobject) } 
             //defe.GetDiscard
@@ -493,26 +506,33 @@ public class Dice : MonoBehaviourPunCallbacks
                             }
                         }
                     }
-                    }
                 }
-            if (StrongHoldCardP1.isSelected) 
+            }
+
+            foreach (ShP1Card StrongholdCardP1 in allSHP1Cards)
+            { 
+            if (StrongholdCardP1.isSelected)
             {
                 if (CanAttackP2) 
                 {
-                    if ((GetDice() + StrongHoldCardP1.GetP2Power()) > ((GetDice2()) + StrongHoldCardP1.GetP1Power()))
+                    if ((GetDice() + StrongholdCardP1.GetP2Power()) > ((GetDice2()) + StrongholdCardP1.GetP1Power()))
                     {
-                        Debug.Log("ATTACKER Dice:" + GetDice() + "+" + "Attack:" + StrongHoldCardP1.GetP2Power() + "=" + (GetDice() + StrongHoldCardP1.GetP2Power()));
-                        Debug.Log("DEFENSE Dice:" + GetDice2() + "+" + "Attack:" + StrongHoldCardP1.GetP1Power() + "=" + (GetDice2() + StrongHoldCardP1.GetP1Power()));
+                        Debug.Log("ATTACKER Dice:" + GetDice() + "+" + "Attack:" + StrongholdCardP1.GetP2Power() + "=" + (GetDice() + StrongholdCardP1.GetP2Power()));
+                        Debug.Log("DEFENSE Dice:" + GetDice2() + "+" + "Attack:" + StrongholdCardP1.GetP1Power() + "=" + (GetDice2() + StrongholdCardP1.GetP1Power()));
 
-                        int newHealthP1 = StrongHoldCardP1.GetCardHealth() - StrongHoldCardP1.GetP2Power();
-                        StrongHoldCardP2.SetSHealth(newHealthP1);
-                        StrongHoldCardP2.healthText.text = newHealthP1.ToString();
-                        Debug.Log("New StrongHealth:" + newHealthP1);
+                        int newHealthP1 = StrongholdCardP1.GetCardHealth() - StrongholdCardP1.GetP2Power();
+
+                            foreach (ShP1Card SHP1C in allSHP1Cards)
+                            { 
+                                SHP1C.SetSHealth(newHealthP1);
+                                SHP1C.healthText.text = newHealthP1.ToString();
+                                Debug.Log("New StrongHealth:" + newHealthP1);
+                            }
 
                         CanAttackP2 = false;
                         StartCoroutine(CanAttackNowP2(10.0f));
 
-                        if (StrongHoldCardP1.GetCardHealth() <=0) 
+                        if (StrongholdCardP1.GetCardHealth() <=0) 
                         {
                             Debug.Log("GAME OVER, P2 WINS");
                         // Debug.Log("Discard Value:" +defcard.GetDiscard());
@@ -528,6 +548,7 @@ public class Dice : MonoBehaviourPunCallbacks
                        
                     }
                 }
+            }
             }
 
                 StartCoroutine(DiscardAnim2(2.0f));

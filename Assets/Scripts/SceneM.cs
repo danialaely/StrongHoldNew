@@ -19,6 +19,13 @@ public class SceneM : MonoBehaviourPunCallbacks
     public GameObject SettingsPanel;
     public GameObject BackPanel;
 
+    public GameObject SinglePlayerBtn;
+    public GameObject MultiplayerBtn;
+    public GameObject InitialPlayBtn;
+    public GameObject Toggles;
+    public GameObject TogglePlayBtn;
+    public GameObject LogoImg;
+
     public TMP_InputField roomNameText;
 
     private Dictionary<string, RoomInfo> roomListData;
@@ -35,11 +42,22 @@ public class SceneM : MonoBehaviourPunCallbacks
     public GameObject playerListItemParent;
     public GameObject playButton;
 
+
+    public Slider musicSlider;        // Reference to your Slider
+    public TMP_Text musicText;        // Reference to your TMP_Text to display percentage
+    public Slider sfxSlider;
+    public TMP_Text sfxText;
+
     private void Start()
     {
         roomListData = new Dictionary<string, RoomInfo>();
         roomListGameobject = new Dictionary<string, GameObject>();
         PhotonNetwork.AutomaticallySyncScene = true;
+
+        SinglePlayerBtn.gameObject.SetActive(false);
+        MultiplayerBtn.gameObject.SetActive(false);
+        Toggles.gameObject.SetActive(false);
+        TogglePlayBtn.gameObject.SetActive(false);  
     }
     private void Update()
     {
@@ -66,6 +84,47 @@ public class SceneM : MonoBehaviourPunCallbacks
 
     }
 
+    public void LoadSinglePlayer() 
+    {
+        Toggles.gameObject.SetActive(true);
+        //InitialPlayBtn.gameObject.SetActive(false);
+        SinglePlayerBtn.gameObject.SetActive(false);
+        MultiplayerBtn.gameObject.SetActive(false);
+        TogglePlayBtn.gameObject.SetActive(true);
+        //SceneManager.LoadScene("AI");
+        //AudioManager.instance.StopMusic();
+        //AudioManager.instance.StopVideo();
+    }
+
+    public void LoadingAIScene() 
+    {
+        SceneManager.LoadScene("AI");
+        AudioManager.instance.StopMusic();
+        AudioManager.instance.StopVideo();
+    }
+
+    public void LodeMultiplayer() 
+    {
+        //SceneManager.LoadScene("SampleScene");
+
+        PhotonNetwork.LocalPlayer.NickName = menuToggleManager.GetUserName();
+        PhotonNetwork.ConnectUsingSettings();
+        ActivateMyPanel(ConnectingPanel.name);
+    }
+
+    public override void OnDisconnected(DisconnectCause cause)
+    {
+        Debug.Log("Disconnected from Photon. Cause: " + cause.ToString());
+    }
+
+    public void LoadModePanel() 
+    {
+        InitialPlayBtn.gameObject.SetActive(false);
+        LogoImg.gameObject.SetActive(false);
+        SinglePlayerBtn.gameObject.SetActive(true);
+        MultiplayerBtn.gameObject.SetActive(true);
+    }
+
     public void OnClickRoomCreate() 
     {
         string roomName = roomNameText.text;
@@ -88,6 +147,62 @@ public class SceneM : MonoBehaviourPunCallbacks
         ActivateMyPanel(SettingsPanel.name);
         AudioManager.instance.PlayMusic("SettingsAudio");
         AudioManager.instance.PlaySettingsVideo();
+
+        musicSlider = GameObject.FindGameObjectWithTag("MSlider").GetComponent<Slider>();
+        musicText = GameObject.FindGameObjectWithTag("MusicText").GetComponent<TMP_Text>();
+        sfxSlider = GameObject.FindGameObjectWithTag("SFXSlider").GetComponent<Slider>();
+        sfxText = GameObject.FindGameObjectWithTag("SFXText").GetComponent<TMP_Text>();
+
+        musicSlider.minValue = 0;
+        musicSlider.maxValue = 1;
+        musicSlider.value = AudioManager.instance.GetMusicVolume();
+        UpdateMusicText(musicSlider.value);
+        musicSlider.onValueChanged.AddListener(OnMusicSliderValueChanged);
+
+        sfxSlider.minValue = 0;
+        sfxSlider.maxValue = 1;
+        sfxSlider.value = AudioManager.instance.GetSFXVolume();
+        UpdateSfxText(sfxSlider.value);
+
+        sfxSlider.onValueChanged.AddListener(OnSfxSliderValueChanged);
+    }
+
+    private void OnSfxSliderValueChanged(float val)
+    {
+        SFXVolume();
+    }
+
+    public void SFXVolume()
+    {
+        AudioManager.instance.SFXVolume(sfxSlider.value);
+
+        UpdateSfxText(sfxSlider.value);
+    }
+
+    private void UpdateSfxText(float val)
+    {
+        int percent = Mathf.RoundToInt(val * 100);
+        sfxText.text = percent.ToString() + "%";
+    }
+
+    private void UpdateMusicText(float value)
+    {
+        int percentage = Mathf.RoundToInt(value * 100); // Convert to a percentage
+        musicText.text = percentage.ToString() + "%";   // Update the TMP_Text component
+    }
+
+    public void MusicVolume()
+    {
+        // Adjust the volume in the AudioManager based on the slider value
+        AudioManager.instance.MusicVolume(musicSlider.value);
+
+        // Update the text to show the percentage
+        UpdateMusicText(musicSlider.value);
+    }
+
+    private void OnMusicSliderValueChanged(float value)
+    {
+        MusicVolume(); // Call your method to update the AudioManager and the text
     }
 
     public void BackClick() 

@@ -75,6 +75,7 @@ public class DisplayCard2 : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragH
     public AudioClip discardedClip;
     public AudioSource src;
 
+    public List<ShP1Card> allSHP1Cards;
     // Start is called before the first frame update
     void Start()
     {
@@ -84,6 +85,7 @@ public class DisplayCard2 : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragH
         player1 = GameObject.FindGameObjectsWithTag(tagToSearch);
         player2 = GameObject.FindGameObjectsWithTag(Movtag);
 
+        allSHP1Cards = new List<ShP1Card>(FindObjectsOfType<ShP1Card>());
         // Populate allDisplayCards with all instances of DisplayCard
         allDisplayCards = new List<DisplayCard2>(FindObjectsOfType<DisplayCard2>());
         outerBorder = this.transform.Find("OuterBorder").GetComponent<Image>();
@@ -461,7 +463,14 @@ public class DisplayCard2 : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragH
                         p2outerborder.color = Color.blue;
 
                         adjCards.Add(p1);
-
+                        if (p1.gameObject.name == "SHCardP1")
+                        {
+                            foreach (ShP1Card STCardP1 in allSHP1Cards)
+                            {
+                                UnityEngine.UI.Image shp1outerborder = STCardP1.transform.Find("OuterBorder").GetComponent<Image>();
+                                shp1outerborder.color = Color.blue;
+                            }
+                        }
                     }
                 }
 
@@ -495,6 +504,14 @@ public class DisplayCard2 : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragH
 
                         adjCards.Clear();
 
+                        if (p1.gameObject.name == "SHCardP1")
+                        {
+                            foreach (ShP1Card STCardP1 in allSHP1Cards)
+                            {
+                                UnityEngine.UI.Image shp1outerborder = STCardP1.transform.Find("OuterBorder").GetComponent<Image>();
+                                shp1outerborder.color = Color.black;
+                            }
+                        }
                         // Check if DisplayCard component is attached
                         DisplayCard displayCard = p1.GetComponent<DisplayCard>();
                         if (displayCard != null)

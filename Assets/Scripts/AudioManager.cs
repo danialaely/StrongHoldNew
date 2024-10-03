@@ -16,12 +16,15 @@ public class AudioManager : MonoBehaviour
     public VideoClip menuVideo;     // Video clip for menu
     public VideoClip settingsVideo; // Video clip for settings
 
+    public bool continuedFromGame;
+
     public void Awake()
     {
         if (instance == null)
         {
             instance = this;
             DontDestroyOnLoad(gameObject);
+            continuedFromGame = false;
         }
         else 
         {

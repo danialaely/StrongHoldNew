@@ -17,8 +17,8 @@ public class DropDown : MonoBehaviour
 
     private void Start()
     {
-        PlayBtn.GetComponent<Image>().color = Color.gray;
-        PBtnTxt.color = Color.gray;
+        PlayBtn.GetComponent<Image>().color = Color.white;
+        PBtnTxt.color = Color.white;
     }
 
     public void HandleInputData(int val) 
@@ -28,7 +28,7 @@ public class DropDown : MonoBehaviour
         {
             SinglePImg.SetActive(false);
             MultiplayerImg.SetActive(true);
-            PlayBtn.GetComponent<Image>().color = Color.gray;
+            PlayBtn.GetComponent<Image>().color = Color.white;
             PBtnTxt.color = Color.gray;
 
             ToggleGroup.SetActive(false);

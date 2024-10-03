@@ -12,8 +12,14 @@ public class MenuToggleManager : MonoBehaviour
     public Toggle HardToggle;
 
     public TMP_InputField userNameText;
+    public static string playerName;
+
     public GameObject PlayerNamePanel;
     public GameObject WelcomePanel;
+
+    public GameObject EasyBlurr;
+    public GameObject MediumBlurr;
+    public GameObject HardBlurr;
 
     void Start()
     {
@@ -21,9 +27,19 @@ public class MenuToggleManager : MonoBehaviour
         MediumToggle.onValueChanged.AddListener(delegate { ToggleValueChanged(); });
         HardToggle.onValueChanged.AddListener(delegate { ToggleValueChanged(); });
 
-        ActivateMyPanel(PlayerNamePanel.name);
-        AudioManager.instance.PlayMusic("SignUpAudio");
-        AudioManager.instance.PlaySignUpVideo();
+        if (AudioManager.instance.continuedFromGame)
+        {
+            Time.timeScale = 1.0f;
+            ActivateMyPanel(WelcomePanel.name);
+            AudioManager.instance.PlayMusic("MenuAudio");
+            AudioManager.instance.PlayMenuVideo();
+        }
+        else 
+        {
+            ActivateMyPanel(PlayerNamePanel.name);
+            AudioManager.instance.PlayMusic("SignUpAudio");
+            AudioManager.instance.PlaySignUpVideo();
+        }
     }
 
     public void ActiveToggle()
@@ -34,6 +50,10 @@ public class MenuToggleManager : MonoBehaviour
             ToggleStateManager.EasyToggleOn = true;
             ToggleStateManager.MediumToggleOn = false;
             ToggleStateManager.HardToggleOn = false;
+
+            EasyBlurr.SetActive(false);
+            MediumBlurr.SetActive(true);
+            HardBlurr.SetActive(true);
         }
         else if (MediumToggle.isOn)
         {
@@ -41,6 +61,10 @@ public class MenuToggleManager : MonoBehaviour
             ToggleStateManager.EasyToggleOn = false;
             ToggleStateManager.MediumToggleOn = true;
             ToggleStateManager.HardToggleOn = false;
+
+            EasyBlurr.SetActive(true);
+            MediumBlurr.SetActive(false);
+            HardBlurr.SetActive(true);
         }
         else if (HardToggle.isOn)
         {
@@ -48,6 +72,10 @@ public class MenuToggleManager : MonoBehaviour
             ToggleStateManager.EasyToggleOn = false;
             ToggleStateManager.MediumToggleOn = false;
             ToggleStateManager.HardToggleOn = true;
+
+            EasyBlurr.SetActive(true);
+            MediumBlurr.SetActive(true);
+            HardBlurr.SetActive(false);
         }
     }
 
@@ -62,6 +90,7 @@ public class MenuToggleManager : MonoBehaviour
         if (!string.IsNullOrEmpty(name))
         {
             //Debug.Log(name);
+            playerName = name; // Store it in static variable
             ActivateMyPanel(WelcomePanel.name);
             AudioManager.instance.PlayMusic("MenuAudio");
             AudioManager.instance.PlayMenuVideo();
@@ -80,7 +109,7 @@ public class MenuToggleManager : MonoBehaviour
 
     public string GetUserName() 
     {
-        return userNameText.text;
+        return playerName; // Use the static variable to persist the name
     }
 
 }

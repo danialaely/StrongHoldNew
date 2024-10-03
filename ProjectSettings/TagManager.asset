@@ -11,6 +11,10 @@ TagManager:
   - aaaa
   - CBack1
   - CBack2
+  - MSlider
+  - MusicText
+  - SFXSlider
+  - SFXText
   layers:
   - Default
   - TransparentFX

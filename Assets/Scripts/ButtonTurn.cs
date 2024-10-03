@@ -87,6 +87,41 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
 
     public GameObject ReadyPanel;
 
+    
+    public Image ArenaBackground;
+   
+    public Sprite easyArenaImg;
+    public Sprite mediumArenaImg;
+    public Sprite hardArenaImg;
+
+    IEnumerator changebgImag(float del) 
+    {
+        yield return new WaitForSeconds(del);
+        Scene cs = SceneManager.GetActiveScene();
+
+        if (cs.name == "AI")
+        {
+            if (gameToggleManager.HardToggle.isOn)
+            {
+                Debug.Log("Set Hard Image");
+                ArenaBackground.sprite = hardArenaImg;
+            }
+
+            else if (gameToggleManager.EasyToggle.isOn)
+            {
+                Debug.Log("Set Easy Image");
+                ArenaBackground.sprite = easyArenaImg;
+            }
+
+            else if (gameToggleManager.MediumToggle.isOn)
+            {
+                Debug.Log("Set Medium Image");
+                ArenaBackground.sprite = mediumArenaImg;
+            }
+
+        }
+    }
+
     private void Start()
     {
         boardSlot = FindAnyObjectByType<BoardSlot>();
@@ -98,7 +133,8 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
         allDisplayCardsP2 = new List<DisplayCard2>(FindObjectsOfType<DisplayCard2>());
 
         Scene cs = SceneManager.GetActiveScene();
-
+        StartCoroutine(changebgImag(0.01f));
+        
         turnCoroutine = StartCoroutine(ChangeTurn(60.0f));
         
         TurnStarter(!isPlayer1Turn);
@@ -684,7 +720,15 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
     {
         yield return new WaitForSeconds(delay);
         turnButton.SetActive(true);
+        StartCoroutine(ChangeTurnAfterAIAttack(1.0f));
     }
+
+    IEnumerator ChangeTurnAfterAIAttack(float delay) 
+    {
+        yield return new WaitForSeconds(delay);
+        OnTurnButtonClick();
+    }
+
     IEnumerator PhaseBtnActive(float delay) 
     {
         yield return new WaitForSeconds(delay);

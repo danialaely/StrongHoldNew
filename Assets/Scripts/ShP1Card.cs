@@ -42,6 +42,7 @@ public class ShP1Card : MonoBehaviour, IPointerClickHandler
     UnityEngine.UI.Image popOuterBdr;
 
     public Animator popupAnim;
+    public List<ShP1Card> allSHP1Cards;
 
     public bool canMove;
 
@@ -55,6 +56,7 @@ public class ShP1Card : MonoBehaviour, IPointerClickHandler
         player2 = GameObject.FindGameObjectsWithTag(tagToSearch);
         popOuterBdr = PopUpCardP1.transform.Find("OuterBorder").GetComponent<Image>();
 
+        allSHP1Cards = new List<ShP1Card>(FindObjectsOfType<ShP1Card>());
         canMove = true;
     }
 
@@ -111,6 +113,12 @@ public class ShP1Card : MonoBehaviour, IPointerClickHandler
                             P2Power = dp.GetCardAttack();
 
                             SHealth = this.GetCardHealth();
+
+                            foreach (ShP1Card STCardP1 in allSHP1Cards)
+                            {
+                                UnityEngine.UI.Image shp1outerborder = STCardP1.transform.Find("OuterBorder").GetComponent<Image>();
+                                shp1outerborder.color = Color.red;
+                            }
                         }
                         /*  if (this.GetCardAttack() < dp.GetCardAttack()) 
                           {
@@ -137,6 +145,12 @@ public class ShP1Card : MonoBehaviour, IPointerClickHandler
                         outerBorder.color = Color.blue;   //MainCamera Blue Color: 314D79    Board Color: 292E48 
                         dice1.enabled = false;
                         dice2.enabled = false;
+
+                        foreach (ShP1Card STCardP1 in allSHP1Cards)
+                        {
+                            UnityEngine.UI.Image shp1outerborder = STCardP1.transform.Find("OuterBorder").GetComponent<Image>();
+                            shp1outerborder.color = Color.blue;
+                        }
                     }
                 }
             }

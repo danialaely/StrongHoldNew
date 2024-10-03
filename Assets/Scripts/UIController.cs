@@ -1,3 +1,4 @@
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,9 +14,29 @@ public class UIController : MonoBehaviour
     public Slider sfxSlider;
     public TMP_Text sfxText;
 
+    public static UIController instance;
+    void OnEnable()
+    {
+        if (AudioManager.instance == null)
+        {
+            Debug.LogError("AudioManager instance is missing.");
+        }
+        else
+        {
+            musicSlider.value = AudioManager.instance.GetMusicVolume();
+            UpdateMusicText(musicSlider.value);
+
+            sfxSlider.value = AudioManager.instance.GetSFXVolume();
+            UpdateSfxText(sfxSlider.value);
+        }
+    }
+
     void Start()
     {
+        //musicSlider = GameObject.FindGameObjectWithTag("MSlider").GetComponent<Slider>();
+
         // Initialize the slider and text
+
         musicSlider.minValue = 0;
         musicSlider.maxValue = 1;
         musicSlider.value = AudioManager.instance.GetMusicVolume(); // Assuming you have a method to get the current volume
@@ -32,21 +53,21 @@ public class UIController : MonoBehaviour
         sfxSlider.onValueChanged.AddListener(OnSfxSliderValueChanged);
     }
 
-    public void ToggleMusic() 
+    public void ToggleMusic()
     {
         AudioManager.instance.ToggleMusic();
     }
 
-    public void MusicVolume() 
+    public void MusicVolume()
     {
         // Adjust the volume in the AudioManager based on the slider value
         AudioManager.instance.MusicVolume(musicSlider.value);
-        
+
         // Update the text to show the percentage
         UpdateMusicText(musicSlider.value);
     }
 
-    public void SFXVolume() 
+    public void SFXVolume()
     {
         AudioManager.instance.SFXVolume(sfxSlider.value);
 
@@ -59,7 +80,7 @@ public class UIController : MonoBehaviour
         MusicVolume(); // Call your method to update the AudioManager and the text
     }
 
-    private void OnSfxSliderValueChanged(float val) 
+    private void OnSfxSliderValueChanged(float val)
     {
         SFXVolume();
     }
@@ -71,10 +92,9 @@ public class UIController : MonoBehaviour
         musicText.text = percentage.ToString() + "%";   // Update the TMP_Text component
     }
 
-    private void UpdateSfxText(float val) 
+    private void UpdateSfxText(float val)
     {
         int percent = Mathf.RoundToInt(val * 100);
         sfxText.text = percent.ToString() + "%";
     }
 }
-
