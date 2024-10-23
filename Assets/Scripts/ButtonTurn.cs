@@ -232,7 +232,7 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
         boardSlot.coinP2img, boardSlot.coinP2img2, boardSlot.coinP2img3,
         boardSlot.coinP2img4, boardSlot.coinP2img5, boardSlot.coinP2img6,
         boardSlot.coinP2img7, boardSlot.coinP2img8
-    };
+        };
 
         for (int i = 7; i >= newEnergy; i--)
         {

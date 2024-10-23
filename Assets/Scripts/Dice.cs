@@ -228,6 +228,7 @@ public class Dice : MonoBehaviourPunCallbacks
                     {
                     if (CanAttackP1) 
                     {
+                        Debug.Log("THIS IS CARD ATTACK:"+defenderCard.GetP1Power());
                         if ((GetDice() + defenderCard.GetP1Power()) > 2 * ((GetDice2()) + defenderCard.GetP2Power()))
                         {
                             Debug.Log("Attack More Than Twice");
@@ -246,14 +247,17 @@ public class Dice : MonoBehaviourPunCallbacks
                             {
                                 btnTurn.CardPlacedToBoard.Remove(defenderCard.gameObject);
                             }
-                            defenderCard.OnPtClc(); //MADE CHANGES HERE
+                            Debug.Log("POPup1:"+defenderCard.isSelected);
+                            //defenderCard.OnPtClc(); //MADE CHANGES HERE
+                            defenderCard.DisablePopUPAfterAttack();
+                            Debug.Log("POPup2:"+defenderCard.isSelected);
                             DiscardSound();
 
                             //  healthValStP2 -= 2.5f;
                             //  SHoldHealthP2.text = healthValStP2.ToString();
                             // Notify other players about the discard action
                             photonView.RPC("SyncCardDiscard", RpcTarget.Others, defenderCard.photonView.ViewID);
-
+                            break;
                         }
                         else if ((GetDice() + defenderCard.GetP1Power()) > ((GetDice2()) + defenderCard.GetP2Power()))
                         {
@@ -273,7 +277,10 @@ public class Dice : MonoBehaviourPunCallbacks
                             {
                                 btnTurn.CardPlacedToBoard.Remove(defenderCard.gameObject);
                             }
-                            defenderCard.OnPtClc(); //MADE CHANGES HERE
+                            Debug.Log("POPup1:" + defenderCard.isSelected);
+                            //defenderCard.OnPtClc(); //MADE CHANGES HERE
+                            defenderCard.DisablePopUPAfterAttack();
+                            Debug.Log("POPup2:" + defenderCard.isSelected);
                             DiscardSound();
 
                             // Notify other players about the discard action
@@ -281,6 +288,7 @@ public class Dice : MonoBehaviourPunCallbacks
 
                             CanAttackP1 = false;
                             StartCoroutine(CanAttackNowP1(10.0f));
+                            break;
                         }
                         else if ((GetDice() + defenderCard.GetP1Power()) * 2 < ((GetDice2()) + defenderCard.GetP2Power()))   //APPLY DEFENSE MECHANISM HERE
                         {

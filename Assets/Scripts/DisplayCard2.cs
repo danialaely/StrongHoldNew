@@ -76,6 +76,10 @@ public class DisplayCard2 : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragH
     public AudioSource src;
 
     public List<ShP1Card> allSHP1Cards;
+
+    List<DisplayCard> SelectedCardsP1;
+    public DisplayCard dpcrd1;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -92,6 +96,8 @@ public class DisplayCard2 : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragH
         popOuterBdr = PopUpCardP2.transform.Find("OuterBorder").GetComponent<Image>();
 
         BoSlots = new List<BoardSlot>(FindObjectsOfType<BoardSlot>());
+
+        SelectedCardsP1 = dpcrd1.SelectedP1Cards();
 
         dice1.enabled = false;
         dice2.enabled = false;
@@ -562,18 +568,19 @@ public class DisplayCard2 : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragH
                 {
                     foreach (DisplayCard2 lastselected in allDisplayCards)
                     {
-
                         if (lastselected.isSelected)
                         {
+                            // Deselect the last selected card
                             lastselected.isSelected = false;
                             lastselected.outerBorder.color = Color.blue;
                         }
-                        else
-                        {
-                            isSelected = !isSelected;
-                        }
                     }
+
+                    // Toggle the selection status of the current card only once
                     isSelected = !isSelected;
+
+                    // Break out of the loop once the card is selected/deselected
+                    break;
                 }
             }
 
@@ -592,28 +599,46 @@ public class DisplayCard2 : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragH
                     popupanim2.SetBool("Select",true);
                 }
 
+                int totalAttack = 0; // Variable to accumulate the total attack
+
                 foreach (GameObject displayCardObject in player1)
                 {
                     DisplayCard dp = displayCardObject.GetComponent<DisplayCard>();
+
+                    // Check if the card is adjacent, there is enough energy, and it's the Attack phase
                     if (dp != null && dp.adjacentCards.Contains(gameObject) && BoardSlot.GetCurrentEnergy() >= 2 && gm.currentPhase == GamePhase.Attack)
                     {
+                        // Set the border color to indicate selection
                         outerBorder.color = Color.red;
-                        Debug.Log("Player1 Card's Attack:" + dp.GetCardAttack());
+
+                        // Enable dice for attack calculation (or some visual feedback)
                         dice1.enabled = true;
                         dice2.enabled = true;
 
+                        // Play the attack sound
                         shuffler.AttackSound();
 
-                        P1Power = dp.GetCardAttack();
-                        P2Power = this.GetCardHealth();
-                        /*  if (this.GetCardAttack() < dp.GetCardAttack()) 
-                          {
-                              //shuffler.DiscardSound();
-                              DisCard = true; 
-                          }*/
+                        // Accumulate the attack power
+                        totalAttack += dp.GetCardAttack();
 
+                        // Log individual attack for each selected card
+                        Debug.Log("Player1 Card's Attack: " + dp.GetCardAttack());
+
+                        // Optionally, you can store or compare P1Power and P2Power if needed
+                        P1Power = totalAttack;  // P1Power is now the total attack from all selected cards
+                        P2Power = this.GetCardHealth();  // Assuming this refers to the current game object’s health
+
+                        // You can implement your discard or combat logic here
+                        /* if (this.GetCardAttack() < dp.GetCardAttack()) 
+                        {
+                            //shuffler.DiscardSound();
+                            DisCard = true; 
+                        } */
                     }
                 }
+
+                // Log the total attack power after summing up all selected cards
+                Debug.Log("Total Attack Power from all selected cards: " + totalAttack);
             }
             if (!isSelected)
             {
@@ -640,6 +665,23 @@ public class DisplayCard2 : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragH
     public void OnPointerClick(PointerEventData eventData)
     {
         OnPtClc();
+    }
+
+    public void DisablePopUPAfterAttack() 
+    {
+        isSelected = false;
+        popupanim2.SetBool("Select", false);
+        dice1.enabled = false;
+        dice2.enabled = false;
+
+        foreach (GameObject displayCardObject in player1) 
+        {
+            DisplayCard dp = displayCardObject.GetComponent<DisplayCard>();
+            if (dp != null && dp.adjacentCards.Contains(gameObject))
+            {
+                dp.OnPtcClk();
+            }
+        }
     }
 
     public bool GetDiscard() 

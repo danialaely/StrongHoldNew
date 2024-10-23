@@ -24,7 +24,7 @@ public class DropDown : MonoBehaviour
     public void HandleInputData(int val) 
     {
         value = val;
-        if (val ==0) 
+        if (val == 0) 
         {
             SinglePImg.SetActive(false);
             MultiplayerImg.SetActive(true);

@@ -77,6 +77,9 @@ public class DisplayCard : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragHa
 
     public List<ShP2Card> allSHP2Cards;
 
+    public List<DisplayCard> p1AdjacentToP2 = new List<DisplayCard>();
+    public List<DisplayCard> selectedP1Cards = new List<DisplayCard>();
+
     // Start is called before the first frame update
     void Start()
     {
@@ -222,7 +225,7 @@ public class DisplayCard : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragHa
                     float distance = Vector3.Distance(p1.transform.position, currentPosition);
                     if (p1.gameObject.name == "SHCardP1")
                     {
-                        if (distance < 210f && p1 != this.gameObject)
+                        if (distance < 400f && p1 != this.gameObject)
                         {
                             cachedMovementAdjacentCards.Add(p1);
                         }
@@ -237,7 +240,7 @@ public class DisplayCard : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragHa
 
                         if (displayCard != null && displayCard.canMove)
                         {
-                            if (distance < 210f && p1 != this.gameObject)
+                            if (distance < 280f && p1 != this.gameObject)
                             {
                                 cachedMovementAdjacentCards.Add(p1);
                             }
@@ -251,7 +254,7 @@ public class DisplayCard : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragHa
                 {
                     float dist = Vector3.Distance(bslot.transform.position, gb.transform.position);
 
-                    if (dist < 210f && !processedSlots.Contains(bslot.transform))
+                    if (dist < 280f && !processedSlots.Contains(bslot.transform))
                     {
                         if (!imageCache.TryGetValue(bslot.transform, out Image image))
                         {
@@ -391,6 +394,8 @@ public class DisplayCard : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragHa
                 popupAnim.SetBool("Select",true);
                 outerBorder.color = Color.white;
 
+                selectedP1Cards.Add(this);
+
                 foreach (GameObject p2 in player2)
                 {
                     float distance = Vector3.Distance(p2.transform.position, transform.position);
@@ -400,7 +405,8 @@ public class DisplayCard : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragHa
                         UnityEngine.UI.Image p2outerborder = p2.transform.Find("OuterBorder").GetComponent<Image>();
                         p2outerborder.color = Color.blue;
 
-                        adjacentCards.Add(p2);  //if p2.gameobject=="SHCardP2" { foreach (STCard in StrongHoldCard) {  OuterBorder == Blue } }
+                        adjacentCards.Add(p2);  // CALL THE FUNCTION HERE
+                        StartCoroutine(CheckingAdjP1FromP2(0.1f));
                         if (p2.gameObject.name == "SHCardP2") 
                         {
                             foreach (ShP2Card STCardP2 in allSHP2Cards) 
@@ -413,18 +419,7 @@ public class DisplayCard : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragHa
                 }
 
                 // Unselect other DisplayCard instances
-                foreach (DisplayCard otherCard in allDisplayCards)
-                {
-                    if (otherCard != this && otherCard.isSelected)
-                    {
-                        //otherCard.isSelected = false;
-                        //otherCard.PopUpCardP1.SetActive(false);
-                        otherCard.OnPtcClk();
-                        otherCard.adjacentCards.Clear();
-                        otherCard.outerBorder.color = Color.black;
-
-                    }
-                }
+                StartCoroutine(UnSelectCardsNotAdjacent(0.2f));
 
             }
             if (!isSelected)
@@ -580,6 +575,46 @@ public class DisplayCard : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragHa
     public void OnPointerClick(PointerEventData eventData)
     {
         OnPtcClk();
+    }
+
+    IEnumerator CheckingAdjP1FromP2(float del) 
+    {
+        yield return new WaitForSeconds(del);
+        foreach (GameObject pl2 in adjacentCards) 
+        {
+            foreach (DisplayCard pl1 in allDisplayCards) 
+            {
+                float distance = Vector3.Distance(pl1.transform.position,pl2.transform.position);
+                if (distance < 210f) 
+                {
+                    //UnityEngine.UI.Image p2outerborder = pl1.transform.Find("OuterBorder").GetComponent<Image>();
+                    //p2outerborder.color = Color.cyan; //FFFF00
+                    p1AdjacentToP2.Add(pl1);
+                }
+            }
+        }
+    }
+
+    IEnumerator UnSelectCardsNotAdjacent(float delay) 
+    {
+        yield return new WaitForSeconds(delay);
+        foreach (DisplayCard otherCard in allDisplayCards)    //ADD CONDITION IN THIS LOOP
+        {
+            if (otherCard != this && otherCard.isSelected && !p1AdjacentToP2.Contains(otherCard))
+            {
+                //otherCard.isSelected = false;
+                //otherCard.PopUpCardP1.SetActive(false);
+                otherCard.OnPtcClk();
+                otherCard.adjacentCards.Clear();
+                otherCard.outerBorder.color = Color.black;
+
+            }
+        }
+    }
+
+    public List<DisplayCard> SelectedP1Cards()
+    {
+        return selectedP1Cards;
     }
 
     public bool GetDiscard() 
