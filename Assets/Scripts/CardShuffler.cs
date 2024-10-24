@@ -127,10 +127,13 @@ public class CardShuffler : MonoBehaviourPunCallbacks
         if (gm.currentPhase == GamePhase.Draw)
         {
             string triggerName = "ShuffleTrigger" + (1+(8 - handchildCount)).ToString();
-            cardAnimator.SetTrigger(triggerName);
-            Debug.Log(triggerName);
-            zm.DeckSound();
-            StartCoroutine(BackToDefault(2.0f + (handchildCount == 0 ? 1.0f : 0f)));
+            if (triggerName != "ShuffleTrigger1") 
+            {
+                cardAnimator.SetTrigger(triggerName);
+                Debug.Log(triggerName);
+                zm.DeckSound();
+                StartCoroutine(BackToDefault(2.0f + (handchildCount == 0 ? 1.0f : 0f)));
+            }
         }
     }
 

@@ -452,7 +452,7 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
             float distance = Vector3.Distance(p2.transform.position, selectedCARD.transform.position);
             if (p2.gameObject.name == "SHCardP2")
             {
-                if (distance < 210f && p2 != selectedCARD.gameObject)
+                if (distance < 280f && p2 != selectedCARD.gameObject)
                 {
                     adjacentp2List.Add(p2);
                 }
@@ -460,7 +460,7 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
             else
             {
                 DisplayCard2 displayCard2 = p2.GetComponent<DisplayCard2>();
-                if (distance < 210f && p2 != selectedCARD.gameObject && displayCard2.canMove)
+                if (distance < 280f && p2 != selectedCARD.gameObject && displayCard2.canMove)
                 {
                     adjacentp2List.Add(p2);
                 }
@@ -478,7 +478,7 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
             foreach (GameObject p2 in adjacentp2List)
             {
                 float dist = Vector3.Distance(p2.transform.position, bslot.transform.position);
-                if (dist < 210f && bslot.childCount == 0)
+                if (dist < 270f && bslot.childCount == 0)
                 {
                     adjacentBSlots.Add(bslot);
                 }

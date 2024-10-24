@@ -50,6 +50,8 @@ public class Dice : MonoBehaviourPunCallbacks
 
     public ButtonTurn btnTurn;
 
+    public GameObject AtcFailedTxt;
+
   //  public TMP_Text SHoldHealthP1;
   //  float healthValStP1;
    
@@ -78,7 +80,7 @@ public class Dice : MonoBehaviourPunCallbacks
 
         CounterAttackinP1 = false;
         CounterAttackinP2 = false;
-
+        AtcFailedTxt.SetActive(false);
       //  healthValStP1 = 100.0f;
       //  SHoldHealthP1.text = healthValStP1.ToString();
 
@@ -237,7 +239,7 @@ public class Dice : MonoBehaviourPunCallbacks
                             //defenderCard.transform.position += new Vector3(600f,-300f,0f);
                             if (currentScene.name == "SampleScene")
                             {
-                                if (defenderCard.photonView.Owner != PhotonNetwork.LocalPlayer) {defenderCard.photonView.RequestOwnership();}
+                                if (defenderCard.photonView.Owner != PhotonNetwork.LocalPlayer) { defenderCard.photonView.RequestOwnership(); }
                             }
 
                             discaranimator.SetBool("isDiscard", true);
@@ -247,10 +249,10 @@ public class Dice : MonoBehaviourPunCallbacks
                             {
                                 btnTurn.CardPlacedToBoard.Remove(defenderCard.gameObject);
                             }
-                            Debug.Log("POPup1:"+defenderCard.isSelected);
+                            Debug.Log("POPup1:" + defenderCard.isSelected);
                             //defenderCard.OnPtClc(); //MADE CHANGES HERE
                             defenderCard.DisablePopUPAfterAttack();
-                            Debug.Log("POPup2:"+defenderCard.isSelected);
+                            Debug.Log("POPup2:" + defenderCard.isSelected);
                             DiscardSound();
 
                             //  healthValStP2 -= 2.5f;
@@ -265,9 +267,9 @@ public class Dice : MonoBehaviourPunCallbacks
                             Debug.Log("DEFENSE Dice:" + GetDice2() + "+" + "Attack:" + defenderCard.GetP2Power() + "=" + (GetDice2() + defenderCard.GetP2Power()));
 
                             // Request ownership before moving the card
-                            if (currentScene.name == "SampleScene") 
+                            if (currentScene.name == "SampleScene")
                             {
-                                if (defenderCard.photonView.Owner != PhotonNetwork.LocalPlayer) {defenderCard.photonView.RequestOwnership();}
+                                if (defenderCard.photonView.Owner != PhotonNetwork.LocalPlayer) { defenderCard.photonView.RequestOwnership(); }
                             }
 
                             discaranimator.SetBool("isDiscard", true);
@@ -306,17 +308,17 @@ public class Dice : MonoBehaviourPunCallbacks
                             CounterAttackinP1 = true;
                             CanAttackP1 = false;
                             StartCoroutine(CanAttackNowP1(10.0f));
-                            foreach (DisplayCard atcCard in allDisplayCards) 
+                            foreach (DisplayCard atcCard in allDisplayCards)
                             {
-                                if (atcCard.isSelected) 
+                                if (atcCard.isSelected)
                                 {
                                     StartCoroutine(delay());
                                 }
-                                IEnumerator delay() 
+                                IEnumerator delay()
                                 {
                                     yield return new WaitForSeconds(3.0f);
                                     StartCoroutine(CountAttackP1(1.0f));
-                                    Debug.Log("COUNTER ATTACK false hona chaahiye:"+CounterAttackinP1);
+                                    Debug.Log("COUNTER ATTACK false hona chaahiye:" + CounterAttackinP1);
                                     if ((GetDice() + defenderCard.GetP1Power()) < ((GetDice2()) + defenderCard.GetP2Power()))
                                     {
                                         Debug.Log("Counter Attacked Succeeded");
@@ -324,19 +326,32 @@ public class Dice : MonoBehaviourPunCallbacks
                                         if (currentScene.name == "SampleScene")
                                         {
                                             if (atcCard.photonView.Owner != PhotonNetwork.LocalPlayer) { atcCard.photonView.RequestOwnership(); }
-                                           // defenderCard.OnPtClc(); //MADE CHANGES HERE
+                                            // defenderCard.OnPtClc(); //MADE CHANGES HERE
                                         }
-                                        animator2.SetBool("isDiscarded",true);
+                                        animator2.SetBool("isDiscarded", true);
                                         Transform discarded = atcCard.transform;
                                         discarded.SetParent(discardpile2.transform);
                                         atcCard.OnPtcClk();
                                         DiscardSound();
-                                        
+
                                         photonView.RPC("SyncCardDiscard", RpcTarget.Others, atcCard.photonView.ViewID);
                                         //   healthValStP1 -= 2.5f;
                                         //   SHoldHealthP1.text = healthValStP1.ToString();
                                     }
                                     else { Debug.Log("Counter Attacked Failed"); }
+                                }
+                            }
+                        }
+                        else 
+                        {
+                            Debug.Log("Attack failed.");
+                            AtcFailedTxt.SetActive(true);
+                            StartCoroutine(disableAtcTxt(1.0f));
+                            foreach (DisplayCard atcCard in allDisplayCards)
+                            {
+                                if (atcCard.isSelected)
+                                {
+                                    atcCard.OnPtcClk();
                                 }
                             }
                         }
@@ -419,7 +434,7 @@ public class Dice : MonoBehaviourPunCallbacks
                         if ((GetDice() + defcard.Getp2Power()) > 2 * ((GetDice2()) + defcard.Getp1Power()))
                         {
                             Debug.Log("Attack is more than twice the defence");
-                            if (currentScene.name == "SampleScene") 
+                            if (currentScene.name == "SampleScene")
                             {
                                 if (defcard.photonView.Owner != PhotonNetwork.LocalPlayer) { defcard.photonView.RequestOwnership(); }
                                 defcard.OnPtcClk(); //MADE CHANGES HERE
@@ -442,11 +457,11 @@ public class Dice : MonoBehaviourPunCallbacks
                             // Debug.Log("Discard Value:" +defcard.GetDiscard());
                             // Destroy(defcard.gameObject);
                             if (currentScene.name == "SampleScene")
-                            { 
-                               if (defcard.photonView.Owner != PhotonNetwork.LocalPlayer) {defcard.photonView.RequestOwnership();}
-                               defcard.OnPtcClk(); //MADE CHANGES HERE
+                            {
+                                if (defcard.photonView.Owner != PhotonNetwork.LocalPlayer) { defcard.photonView.RequestOwnership(); }
+                                defcard.OnPtcClk(); //MADE CHANGES HERE
                             }
-                            
+
                             animator2.SetBool("isDiscarded", true);
                             Transform discardCard = defcard.transform;
                             discardCard.SetParent(discardpile2.transform);
@@ -461,7 +476,7 @@ public class Dice : MonoBehaviourPunCallbacks
                             CanAttackP2 = false;
                             StartCoroutine(CanAttackNowP2(10.0f));
                         }
-                        else if ((GetDice() + defcard.Getp2Power()) * 2 < ((GetDice2()) + defcard.Getp1Power())) 
+                        else if ((GetDice() + defcard.Getp2Power()) * 2 < ((GetDice2()) + defcard.Getp1Power()))
                         {
                             Debug.Log("Defense More Than Twice");
                             Debug.Log("Hit");
@@ -477,7 +492,7 @@ public class Dice : MonoBehaviourPunCallbacks
                             CounterAttackinP2 = true;
                             CanAttackP2 = false;
                             StartCoroutine(CanAttackNowP2(10.0f));
-                            foreach (DisplayCard2 atcCard in allDpCards) 
+                            foreach (DisplayCard2 atcCard in allDpCards)
                             {
                                 if (atcCard.isSelected)
                                 {
@@ -496,11 +511,11 @@ public class Dice : MonoBehaviourPunCallbacks
                                         Transform discards = atcCard.transform;
                                         discards.SetParent(discardpile.transform);
                                         if (currentScene.name == "SampleScene")
-                                        { 
+                                        {
                                             if (atcCard.photonView.Owner != PhotonNetwork.LocalPlayer) { atcCard.photonView.RequestOwnership(); }
                                             atcCard.OnPtClc();
                                         }
-                                        Debug.Log("Discard Pile Name:"+discardpile.name);
+                                        Debug.Log("Discard Pile Name:" + discardpile.name);
                                         DiscardSound();
 
                                         // Notify other players about the discard action
@@ -512,6 +527,12 @@ public class Dice : MonoBehaviourPunCallbacks
                                     else { Debug.Log("Counter Attacked Failed"); }
                                 }
                             }
+                        }
+                        else 
+                        {
+                            Debug.Log("Ai Attack Failed");
+                            AtcFailedTxt.SetActive(true);
+                            StartCoroutine(disableAtcTxt(1.0f));
                         }
                     }
                 }
@@ -613,5 +634,11 @@ public class Dice : MonoBehaviourPunCallbacks
         {
             coinP2Images[i].SetActive(false);
         }
+    }
+
+    IEnumerator disableAtcTxt(float del) 
+    {
+        yield return new WaitForSeconds(del);
+        AtcFailedTxt.SetActive(false);
     }
 }

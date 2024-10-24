@@ -277,7 +277,7 @@ public class DisplayCard2 : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragH
         foreach (GameObject p2 in player2)
         {
             float distance = Vector3.Distance(p2.transform.position, currentPosition);
-            if (distance >= 210f || p2 == gameObject) continue;
+            if (distance >= 400f || p2 == gameObject) continue;
 
             if (p2.name == "SHCardP2")
             {
@@ -293,7 +293,10 @@ public class DisplayCard2 : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragH
 
                 if (displayCard2 != null && displayCard2.canMove)
                 {
-                    adjacentCards.Add(p2);
+                    if (distance < 280f && p2 != this.gameObject)
+                    { 
+                        adjacentCards.Add(p2);
+                    }
                 }
             }
         }
@@ -305,7 +308,7 @@ public class DisplayCard2 : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragH
         {
             float dist = Vector3.Distance(bslot.transform.position, gb.transform.position);
 
-            if (dist < 210f && processedSlots.Add(bslot.transform))
+            if (dist < 280f && processedSlots.Add(bslot.transform))
             {
                 if (!imageCache.TryGetValue(bslot.transform, out Image image))
                 {
@@ -379,7 +382,7 @@ public class DisplayCard2 : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragH
         {
             float distance = Vector3.Distance(p2.transform.position, transform.position);
 
-            if (distance < 210f)
+            if (distance < 280f)
             {
                 UnityEngine.UI.Image p1outerborder = p2.transform.Find("OuterBorder").GetComponent<Image>();
                // p1outerborder.color = Color.black;
@@ -463,7 +466,7 @@ public class DisplayCard2 : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragH
                 {
                     float distance = Vector3.Distance(p1.transform.position, transform.position);
 
-                    if (distance < 210f)
+                    if (distance < 280f)
                     {
                         UnityEngine.UI.Image p2outerborder = p1.transform.Find("OuterBorder").GetComponent<Image>();
                         p2outerborder.color = Color.blue;
@@ -503,7 +506,7 @@ public class DisplayCard2 : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragH
                 {
                     float distance = Vector3.Distance(p1.transform.position, transform.position);
 
-                    if (distance < 210f)
+                    if (distance < 280f)
                     {
                         UnityEngine.UI.Image p1outerborder = p1.transform.Find("OuterBorder").GetComponent<Image>();
                         p1outerborder.color = Color.black;
