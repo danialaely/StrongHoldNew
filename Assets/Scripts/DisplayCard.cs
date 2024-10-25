@@ -394,6 +394,14 @@ public class DisplayCard : MonoBehaviourPunCallbacks, IBeginDragHandler, IDragHa
                 popupAnim.SetBool("Select",true);
                 outerBorder.color = Color.white;
 
+                if (PopUpCardP1.gameObject == null)
+                {
+                    Debug.Log("NUll hai bhai popup");
+                }
+                else 
+                {
+                    Debug.Log("POP UP Details: Name"+popNameTxt.text+" "+"Attack:"+popAttackTxt.text);
+                }
                 selectedP1Cards.Add(this);
 
                 foreach (GameObject p2 in player2)

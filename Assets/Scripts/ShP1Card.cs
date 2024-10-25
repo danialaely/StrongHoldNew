@@ -102,10 +102,10 @@ public class ShP1Card : MonoBehaviour, IPointerClickHandler
                             dice2.enabled = true;
                             
                             shuffler.AttackSound();
-                            PopUpCardP1.SetActive(true);
+                            //PopUpCardP1.SetActive(true);
                             popNameTxt.text = "StrongHold";
                             popHealthTxt.text = healthText.text;
-                            popCardImg.sprite = crdImg.sprite;
+                            //popCardImg.sprite = crdImg.sprite;
                             popOuterBdr.color = Color.red;
                             popupAnim.SetBool("Select", true);
 
@@ -135,7 +135,7 @@ public class ShP1Card : MonoBehaviour, IPointerClickHandler
             {
                 // PopUpCardP1.SetActive(false);
                 popupAnim.SetBool("Select",false);
-                StartCoroutine(popupActiveFalse(0.6f));
+                //StartCoroutine(popupActiveFalse(0.6f));
 
                 foreach (GameObject displayCardObject in player2)
                 {

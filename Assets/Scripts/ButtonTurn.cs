@@ -569,8 +569,10 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
         adjacentSlotsP1.Clear();
         AiAttackCards.Clear();
         adjacentSlotsP1.Clear();
+        Debug.Log("Cleared Adj P1");
         boardSlot.AdjacentBslotListP1();
         boardSlot.UpdatePreviousCardsListP2();
+        Debug.Log("Adjacent Slots P1:"+adjacentSlotsP1.Count);
         if (adjacentSlotsP1.Count > 0)
         {
             foreach (Transform slot in adjacentSlotsP1)
@@ -660,7 +662,14 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
                     }
                 }
 
-                defenseCard.GetComponent<DisplayCard>().OnPtcClk();
+                if (defenseCard.gameObject.name == "SHCardP1")
+                {
+                    defenseCard.GetComponent<ShP1Card>().OnPtcClick();
+                }
+                else 
+                {
+                    defenseCard.GetComponent<DisplayCard>().OnPtcClk();
+                }
                 StartCoroutine(RollingDice(2.0f));
                 StartCoroutine(DeselectAtcCard(6.0f));
                 if (gameToggleManager.EasyToggle.isOn || gameToggleManager.MediumToggle.isOn)
@@ -693,7 +702,14 @@ public class ButtonTurn : MonoBehaviourPunCallbacks, IOnEventCallback
     IEnumerator DeselectAtcCard(float del)
     {
         yield return new WaitForSeconds(del);
-        defenseCard.GetComponent<DisplayCard>().OnPtcClk();
+        if (defenseCard.gameObject.name == "SHCardP1")
+        {
+            defenseCard.GetComponent<ShP1Card>().OnPtcClick();
+        }
+        else 
+        {
+            defenseCard.GetComponent<DisplayCard>().OnPtcClk();
+        }
         randomAiAtcCard.GetComponent<DisplayCard2>().OnPtClc();
     }
 

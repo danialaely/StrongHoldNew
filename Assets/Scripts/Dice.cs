@@ -338,9 +338,15 @@ public class Dice : MonoBehaviourPunCallbacks
                                         //   healthValStP1 -= 2.5f;
                                         //   SHoldHealthP1.text = healthValStP1.ToString();
                                     }
-                                    else { Debug.Log("Counter Attacked Failed"); }
+                                    else 
+                                    { 
+                                        Debug.Log("Counter Attacked Failed");
+                                        AtcFailedTxt.SetActive(true);
+                                        StartCoroutine(disableAtcTxt(1.0f));
+                                    }
                                 }
                             }
+                            break;
                         }
                         else 
                         {
@@ -423,7 +429,7 @@ public class Dice : MonoBehaviourPunCallbacks
 
 
 
-            Debug.Log("in dice attack in isp1turn false");
+            Debug.Log("in dice attack is isp1turn false");
                 //DisplayCard
                 foreach (DisplayCard defcard in allDisplayCards)
                 {
